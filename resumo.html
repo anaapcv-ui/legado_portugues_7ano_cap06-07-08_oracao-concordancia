@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resumo — Central de Sintonia</title>
+<style>
+:root{--bg:#0d1119;--panel:#151c2a;--panel2:#1c2537;--line:#2a3550;--txt:#e6edf7;--dim:#9aa9c2;
+--neon:#3ddc97;--amber:#ffb454;--red:#ff5f6d;--blue:#5aa9ff;--roxo:#a78bfa;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:"Segoe UI",system-ui,-apple-system,sans-serif;font-size:17px;line-height:1.6}
+a{color:var(--amber)}
+.wrap{max-width:940px;margin:0 auto;padding:0 16px 80px}
+header.top{background:linear-gradient(135deg,#3a2508,#5c3a09 55%,#0d1119);border-bottom:3px solid var(--amber);padding:26px 16px 20px}
+header.top .inner{max-width:940px;margin:0 auto}
+.kit{font-size:.78rem;letter-spacing:.22em;color:var(--amber);text-transform:uppercase;font-weight:700}
+h1{margin:6px 0 4px;font-size:1.75rem;line-height:1.2}
+.sub{color:var(--dim);font-size:.95rem;margin:0}
+nav.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+nav.tabs a{padding:8px 14px;border-radius:999px;font-size:.85rem;text-decoration:none;background:var(--panel2);color:var(--dim);border:1px solid var(--line)}
+nav.tabs a.on{background:var(--amber);color:#2a1a02;font-weight:700;border-color:var(--amber)}
+.bar{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:18px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.85rem}
+.bar .status{color:var(--dim);flex:1 1 180px}
+button{font-family:inherit;font-size:.85rem;padding:8px 13px;border-radius:9px;cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--txt)}
+button:hover{border-color:var(--amber)}
+button.primary{background:var(--amber);color:#2a1a02;font-weight:700;border-color:var(--amber)}
+.prog{height:10px;border-radius:99px;background:var(--panel2);overflow:hidden;border:1px solid var(--line)}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--amber),var(--neon));transition:width .4s}
+.proglab{display:flex;justify-content:space-between;font-size:.78rem;color:var(--dim);margin:6px 2px 18px}
+section.mod{background:var(--panel);border:1px solid var(--line);border-radius:16px;margin:18px 0;overflow:hidden}
+section.mod > h2{margin:0;padding:15px 18px;font-size:1.12rem;background:var(--panel2);border-bottom:1px solid var(--line);
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.num{font-size:.72rem;letter-spacing:.16em;color:var(--amber);font-weight:700}
+.bd{padding:18px}
+.bd p{margin:0 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px;margin:12px 0}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+.card h3{margin:0 0 6px;font-size:.97rem;color:var(--neon)}
+.card p{margin:0;font-size:.9rem}
+.ex{display:block;margin-top:7px;font-size:.88rem;color:#cfe0f5;background:#0b0f16;border-left:3px solid var(--blue);padding:7px 10px;border-radius:0 8px 8px 0}
+.flip{perspective:1000px;min-height:150px;cursor:pointer}
+.flip .in{position:relative;width:100%;min-height:150px;transition:transform .5s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;padding:13px 15px;
+  border:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;overflow:auto}
+.flip .f{background:var(--panel2)}
+.flip .b{background:#10251d;border-color:rgba(61,220,151,.5);transform:rotateY(180deg)}
+.flip .f h3{margin:0 0 5px;font-size:1rem;color:var(--roxo)}
+.flip .f .tap{font-size:.76rem;color:var(--dim);margin-top:8px}
+.flip .b p{margin:0;font-size:.89rem}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.9rem}
+th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+th{background:var(--panel2);color:var(--amber)}
+.postit{background:#f6e07a;color:#3a2f05;border-radius:6px;padding:13px 15px;font-size:.92rem;
+  box-shadow:4px 4px 0 rgba(0,0,0,.35);transform:rotate(-.6deg)}
+.postit b{display:block;margin-bottom:4px}
+.peg{background:rgba(255,95,109,.1);border:1px solid var(--red);border-radius:12px;padding:12px 15px;margin:12px 0;font-size:.92rem}
+.peg b{color:var(--red)}
+.done{display:flex;align-items:center;gap:9px;padding:11px 18px;border-top:1px solid var(--line);background:#111825;font-size:.9rem;color:var(--dim);cursor:pointer}
+.done input{width:17px;height:17px;accent-color:var(--neon)}
+.done.ok{color:var(--neon)}
+.notas{width:100%;min-height:70px;background:#0b0f16;color:var(--txt);border:1px solid var(--line);border-radius:10px;
+  padding:10px 12px;font-family:inherit;font-size:.92rem;resize:vertical;margin-top:8px}
+.notas:focus{outline:none;border-color:var(--amber)}
+.glos dt{font-weight:700;color:var(--neon);margin-top:10px}
+.glos dd{margin:2px 0 0 0;font-size:.92rem;color:#cfe0f5}
+.nextbar{display:flex;justify-content:space-between;gap:10px;margin:30px 0 0;flex-wrap:wrap}
+.nextbar a{padding:12px 20px;border-radius:12px;background:var(--panel2);color:var(--txt);border:1px solid var(--line);text-decoration:none}
+.nextbar a.go{background:var(--amber);color:#2a1a02;font-weight:700;border-color:var(--amber)}
+.modal{position:fixed;inset:0;background:rgba(5,8,13,.8);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+.modal.on{display:flex}
+.modal .box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;max-width:420px;width:100%}
+.modal h3{margin:0 0 10px}
+.modal .row{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.hint{color:var(--dim);font-size:.85rem}
+@media(max-width:560px){h1{font-size:1.4rem}body{font-size:16px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="inner">
+  <div class="kit">Central de Sintonia · 7º ano · Língua Portuguesa</div>
+  <h1>🗺️ Resumo — Painel de Controle</h1>
+  <p class="sub">Tudo o que cai na prova, em cartas, tabelas e post-its. Toque nas cartas roxas para virar.</p>
+  <nav class="tabs">
+    <a href="leitura-guiada.html">📖 Leitura Guiada</a>
+    <a href="quiz.html">🎯 Quiz</a>
+    <a class="on" href="resumo.html">🗺️ Resumo</a>
+    <a href="simulado.html">📝 Simulado</a>
+    <a href="index.html">🏠 Início</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <div class="bar">
+    <div class="status" id="status">Carregando…</div>
+    <button onclick="exportar()">📥 Exportar</button>
+    <button onclick="document.getElementById('imp').click()">📤 Importar</button>
+    <input type="file" id="imp" accept="application/json" style="display:none" onchange="importar(this)">
+    <button onclick="pedirZerar()">🗑️ Zerar tudo</button>
+  </div>
+  <div class="prog"><i id="pg"></i></div>
+  <div class="proglab"><span>Módulos estudados</span><span id="pgtxt">0 de 7</span></div>
+
+<section class="mod" id="m0">
+  <h2><span class="num">Módulo 01</span> A oração e os dois termos essenciais</h2>
+  <div class="bd">
+    <p><b>Frase</b> é qualquer enunciado com sentido completo, tenha verbo ou não. <b>Oração</b> é a frase (ou parte dela) que tem verbo. Toda oração é frase; nem toda frase é oração.</p>
+    <div class="grid">
+      <div class="card"><h3>Sujeito</h3><p>O ser de quem se fala ou que pratica a ação. O <b>núcleo</b> dele é sempre substantivo ou pronome.</p><span class="ex">Lucas correu de medo. → Lucas</span></div>
+      <div class="card"><h3>Predicado</h3><p>Tudo o que se declara sobre o sujeito. Nunca aparece sem verbo ou locução verbal.</p><span class="ex">Lucas correu de medo. → correu de medo</span></div>
+      <div class="card"><h3>Núcleo do predicado</h3><p>É o <b>verbo</b> (ou a locução verbal), a parte que carrega a ideia principal.</p><span class="ex">As crianças brincavam com piões… → brincar</span></div>
+      <div class="card"><h3>Locução verbal</h3><p>Dois ou mais verbos que expressam <b>uma ação só</b>.</p><span class="ex">As roupas eram lavadas em tanques.</span></div>
+    </div>
+    <table>
+      <tr><th>Análise morfológica</th><th>Análise morfossintática</th></tr>
+      <tr><td>Olha a palavra <b>sozinha</b> e diz a classe: substantivo, adjetivo, verbo, advérbio.</td>
+          <td>Olha a palavra <b>dentro da oração</b> e diz a função: sujeito, predicado, núcleo.</td></tr>
+      <tr><td>cachorro = substantivo</td><td>cachorro = núcleo do sujeito</td></tr>
+    </table>
+    <div class="postit"><b>📌 Dica de prova</b>Quando a questão pedir "análise morfossintática", ela quer FUNÇÃO. Quando pedir "morfológica", quer CLASSE. Decorar só essa diferença já garante ponto.</div>
+  </div>
+  <label class="done" id="d0"><input type="checkbox" onchange="marcar(0,this.checked)"> Já estudei este módulo</label>
+</section>
+
+<section class="mod" id="m1">
+  <h2><span class="num">Módulo 02</span> Os quatro tipos de sujeito</h2>
+  <div class="bd">
+    <p class="hint">Toque em cada carta para ver a explicação e o exemplo.</p>
+    <div class="grid">
+      <div class="card flip" onclick="this.classList.toggle('on')"><div class="in">
+        <div class="f"><h3>Sujeito simples</h3><p>Quantos núcleos?</p><span class="tap">👆 tocar para virar</span></div>
+        <div class="b"><p><b>Um núcleo só.</b> O artigo que vem junto é só determinante.<br><i>As crianças brincavam com piões.</i> → núcleo: crianças</p></div></div></div>
+      <div class="card flip" onclick="this.classList.toggle('on')"><div class="in">
+        <div class="f"><h3>Sujeito composto</h3><p>Quantos núcleos?</p><span class="tap">👆 tocar para virar</span></div>
+        <div class="b"><p><b>Mais de um núcleo.</b> O verbo vai para o plural.<br><i>As roupas, as toalhas e os lençóis eram lavados…</i> → três núcleos</p></div></div></div>
+      <div class="card flip" onclick="this.classList.toggle('on')"><div class="in">
+        <div class="f"><h3>Sujeito desinencial</h3><p>Onde ele está?</p><span class="tap">👆 tocar para virar</span></div>
+        <div class="b"><p><b>Escondido na terminação do verbo.</b> Existe, mas não está escrito.<br><i>Recebi um convite para uma festa!</i> → [eu], 1ª pessoa do singular</p></div></div></div>
+      <div class="card flip" onclick="this.classList.toggle('on')"><div class="in">
+        <div class="f"><h3>Oração sem sujeito</h3><p>Por que não tem?</p><span class="tap">👆 tocar para virar</span></div>
+        <div class="b"><p><b>O verbo é impessoal.</b> Não dá nem para perguntar quem praticou a ação.<br><i>Choveu muito ontem de manhã.</i></p></div></div></div>
+    </div>
+    <div class="peg"><b>⚠️ Pegadinha clássica:</b> confundir <i>sujeito desinencial</i> com <i>oração sem sujeito</i>. Teste rápido: se dá para colocar eu, tu, nós… na frente e a frase continuar certa, é desinencial. Se não dá, é oração sem sujeito.</div>
+  </div>
+  <label class="done" id="d1"><input type="checkbox" onchange="marcar(1,this.checked)"> Já estudei este módulo</label>
+</section>
+
+<section class="mod" id="m2">
+  <h2><span class="num">Módulo 03</span> Concordância nominal: regra geral e determinantes</h2>
+  <div class="bd">
+    <p><b>A regra em uma linha:</b> o determinante concorda com o substantivo em <b>gênero</b> (masculino/feminino) e em <b>número</b> (singular/plural). Quem manda é sempre o substantivo.</p>
+    <span class="ex">É isso que eles precisam entender, <b>todos os</b> homens, que <b>seu</b> engajamento é importante para <b>o</b> mundo.</span>
+    <table>
+      <tr><th>Classe do determinante</th><th>Exemplos</th></tr>
+      <tr><td>Artigo definido e indefinido</td><td>o, a, os, as, um, uns, uma, umas</td></tr>
+      <tr><td>Pronome demonstrativo</td><td>esse, essa, esses, essas, este, esta, aquele, aquela</td></tr>
+      <tr><td>Pronome possessivo</td><td>meu, minha, meus, minhas, seu, sua, teu, tua</td></tr>
+      <tr><td>Pronome indefinido</td><td>todo, toda, todos, todas, algum, alguma, muito, muitas</td></tr>
+      <tr><td>Pronome oblíquo</td><td>o, a, os, as, -lo, -la, -los, -las, -no, -na</td></tr>
+      <tr><td>Numeral</td><td>primeiro, primeira, um, uma, dois, duas</td></tr>
+      <tr><td>Adjetivo e locução adjetiva</td><td>bonito, bonita, das abelhas, de aço</td></tr>
+    </table>
+    <div class="postit"><b>📌 Dica de prova</b>Antes de responder qualquer questão de concordância nominal, circule o substantivo. Todo o resto da frase vai ter que obedecer a ele.</div>
+  </div>
+  <label class="done" id="d2"><input type="checkbox" onchange="marcar(2,this.checked)"> Já estudei este módulo</label>
+</section>
+
+<section class="mod" id="m3">
+  <h2><span class="num">Módulo 04</span> Adjetivo antes e depois do substantivo</h2>
+  <div class="bd">
+    <table>
+      <tr><th>Situação</th><th>Regra</th><th>Exemplo</th></tr>
+      <tr><td>Adjetivo <b>anteposto</b> a mais de um substantivo</td><td>Concorda com o <b>mais próximo</b>.</td><td>Ele queria <b>novas</b> ideias e argumentos.</td></tr>
+      <tr><td>Adjetivo <b>posposto</b>, substantivos do <b>mesmo gênero</b></td><td>Mais próximo <b>ou</b> plural.</td><td>A mãe e a professora <b>aflita</b> / <b>aflitas</b> aguardavam o aluno.</td></tr>
+      <tr><td>Adjetivo <b>posposto</b>, substantivos de <b>gêneros diferentes</b></td><td>Mais próximo <b>ou</b> plural <b>masculino</b>.</td><td>O pai e a professora <b>aflita</b> / <b>aflitos</b> aguardavam o aluno.</td></tr>
+      <tr><td><b>Predicativo do objeto</b></td><td>Mais próximo ou plural; gêneros diferentes → masculino plural.</td><td>Aquele olhar tornou <b>bela</b> a noite e o dia. / tornou <b>belos</b> a noite e o dia.</td></tr>
+      <tr><td><b>Predicativo do sujeito</b> composto, gêneros diferentes</td><td>Anteposto → verbo no singular com o núcleo mais próximo; ou verbo e predicativo no plural.</td><td>Ainda <b>estava interditada</b> a rua e o túnel. / Ainda <b>estavam interditados</b> a rua e o túnel.</td></tr>
+    </table>
+    <div class="peg"><b>⚠️ Atenção do livro:</b> as duas formas são corretas, mas o <b>plural deixa mais claro</b> que a característica vale para todos os substantivos. "A indústria oferece localização e atendimento <b>perfeitos</b>" mostra que os dois são perfeitos; no singular, parece que só o atendimento é.</div>
+    <div class="grid">
+      <div class="card"><h3>Predicativo do objeto</h3><p>Termo que modifica o objeto direto ou indireto da oração.</p></div>
+      <div class="card"><h3>Predicativo do sujeito</h3><p>Expressa uma qualidade ou estado do sujeito, ligada por um <b>verbo de ligação</b> (ser, estar, ficar, parecer).</p></div>
+    </div>
+  </div>
+  <label class="done" id="d3"><input type="checkbox" onchange="marcar(3,this.checked)"> Já estudei este módulo</label>
+</section>
+
+<section class="mod" id="m4">
+  <h2><span class="num">Módulo 05</span> Vários adjetivos, numerais e invariáveis</h2>
+  <div class="bd">
+    <table>
+      <tr><th>Caso</th><th>Como fica</th></tr>
+      <tr><td>Um substantivo, vários adjetivos — opção A</td><td>Substantivo no <b>singular</b> e o artigo <b>se repete</b>: <i>A novela conquistou <b>o</b> espectador português e <b>o</b> brasileiro.</i></td></tr>
+      <tr><td>Um substantivo, vários adjetivos — opção B</td><td>Substantivo no <b>plural</b> e o artigo <b>não se repete</b>: <i>A novela conquistou <b>os</b> espectadores português e brasileiro.</i></td></tr>
+      <tr><td>Numerais ordinais antepostos a um substantivo</td><td>Substantivo no singular <b>ou</b> no plural: <i>alunos do oitavo e nono <b>ano</b> / <b>anos</b>.</i></td></tr>
+      <tr><td>Adjetivo comum de dois gêneros (uniforme)</td><td>Não muda de gênero, só de número: <i>é muito <b>importante</b> / são <b>importantes</b>.</i></td></tr>
+      <tr><td>Substantivo adjetivado</td><td><b>Invariável</b> em gênero e número: <i>tom pastel / tons <b>pastel</b>; olhos <b>esmeralda</b>.</i></td></tr>
+    </table>
+    <div class="postit"><b>📌 Dica de prova</b>Se a palavra era substantivo e virou "cor" ou "característica" (pastel, esmeralda, cinza, gelo), ela congela: nada de S no plural.</div>
+  </div>
+  <label class="done" id="d4"><input type="checkbox" onchange="marcar(4,this.checked)"> Já estudei este módulo</label>
+</section>
+
+<section class="mod" id="m5">
+  <h2><span class="num">Módulo 06</span> As palavras que causam confusão</h2>
+  <div class="bd">
+    <p class="hint">A lógica é sempre a mesma: descubra a <b>classe</b>. Advérbio não muda; adjetivo e numeral concordam. Toque nas cartas.</p>
+    <div class="grid">
+      <div class="card flip" onclick="this.classList.toggle('on')"><div class="in">
+        <div class="f"><h3>MESMO</h3><p>Quando varia?</p><span class="tap">👆 tocar para virar</span></div>
+        <div class="b"><p><b>= realmente</b> → advérbio, invariável: <i>Foi incrível, mesmo.</i><br><b>= próprio</b> → adjetivo, varia: <i>Eles mesmos desenvolveram as perguntas.</i></p></div></div></div>
+      <div class="card flip" onclick="this.classList.toggle('on')"><div class="in">
+        <div class="f"><h3>ANEXO / EM ANEXO</h3><p>Qual varia?</p><span class="tap">👆 tocar para virar</span></div>
+        <div class="b"><p><b>anexo</b> é adjetivo e varia: <i>As autorizações estão anexas.</i><br><b>em anexo</b> é locução adverbial e nunca muda: <i>Seguem as fotos em anexo.</i></p></div></div></div>
+      <div class="card flip" onclick="this.classList.toggle('on')"><div class="in">
+        <div class="f"><h3>PRÓPRIO</h3><p>Concorda com o quê?</p><span class="tap">👆 tocar para virar</span></div>
+        <div class="b"><p>É adjetivo: segue o substantivo ou o pronome.<br><i>Ele próprio elaborou as questões. / Elas próprias fizeram a revisão.</i></p></div></div></div>
+      <div class="card flip" onclick="this.classList.toggle('on')"><div class="in">
+        <div class="f"><h3>OBRIGADO</h3><p>Com quem concorda?</p><span class="tap">👆 tocar para virar</span></div>
+        <div class="b"><p>Com <b>quem fala</b>, sem variar em número: <i>— Obrigada pela entrevista! — disse a repórter.</i><br>Como adjetivo, concorda com o nome: <i>nós fomos obrigados a remarcar.</i></p></div></div></div>
+      <div class="card flip" onclick="this.classList.toggle('on')"><div class="in">
+        <div class="f"><h3>QUITES</h3><p>Varia em quê?</p><span class="tap">👆 tocar para virar</span></div>
+        <div class="b"><p>Adjetivo de dois gêneros: varia <b>somente em número</b>.<br><i>Estamos quites, cada um fez a sua parte.</i></p></div></div></div>
+      <div class="card flip" onclick="this.classList.toggle('on')"><div class="in">
+        <div class="f"><h3>MEIO / MEIA</h3><p>Três caras!</p><span class="tap">👆 tocar para virar</span></div>
+        <div class="b"><p><b>= um pouco</b> → advérbio: <i>Ando meio desligada.</i><br><b>= metade</b> → numeral, concorda: <i>meio pote, meia xícara, meio-dia e meia.</i><br><b>peça de roupa</b> → substantivo: <i>suas meias no cesto.</i></p></div></div></div>
+      <div class="card flip" onclick="this.classList.toggle('on')"><div class="in">
+        <div class="f"><h3>SÓ / SÓS</h3><p>Somente ou sozinho?</p><span class="tap">👆 tocar para virar</span></div>
+        <div class="b"><p><b>= somente</b> → advérbio, invariável: <i>Só uma boa manchete não constrói uma boa entrevista.</i><br><b>= sozinho</b> → adjetivo, varia em número: <i>As garotas ficaram sós.</i><br><b>a sós</b> é invariável.</p></div></div></div>
+    </div>
+  </div>
+  <label class="done" id="d5"><input type="checkbox" onchange="marcar(5,this.checked)"> Já estudei este módulo</label>
+</section>
+
+<section class="mod" id="m6">
+  <h2><span class="num">Módulo 07</span> Concordância verbal: regra geral e exceções</h2>
+  <div class="bd">
+    <p><b>Regra geral:</b> o verbo concorda com o <b>núcleo do sujeito</b> em <b>número</b> (singular/plural) e <b>pessoa</b> (1ª, 2ª, 3ª).</p>
+    <span class="ex">O <b>time</b> de estrelas, naquele verão de 2023, <b>ganhou</b> o torneio. → núcleo time, 3ª pessoa do singular. A expressão no meio não interfere.</span>
+    <table>
+      <tr><th>Exceção</th><th>Como fica o verbo</th><th>Exemplo</th></tr>
+      <tr><td><b>Sujeito partitivo</b><br>(a maioria de, a metade de, grande parte de, a minoria de, grande número de)</td><td>Singular <b>ou</b> plural — as duas valem.</td><td>A maioria dos estudantes <b>se surpreendeu</b> / <b>se surpreenderam</b>.</td></tr>
+      <tr><td><b>Quantidade aproximada</b><br>(cerca de, mais de, menos de, perto de)</td><td>Concorda com o <b>numeral</b>.</td><td>Cerca de quarenta mil pessoas <b>assistiram</b>. / Mais de um cãozinho <b>foi adotado</b>.</td></tr>
+      <tr><td><b>"Mais de um" com ideia de troca</b></td><td>Vai para o <b>plural</b>.</td><td>Mais de um aluno <b>se ajudaram</b> durante a prova.</td></tr>
+      <tr><td><b>Nomes só no plural</b></td><td><b>Com</b> artigo → plural. <b>Sem</b> artigo → singular.</td><td><b>As</b> Minas Gerais <b>encantam</b>. / Minas Gerais <b>está</b> no Sudeste.</td></tr>
+      <tr><td><b>Pronomes de tratamento</b></td><td>Sempre na <b>3ª pessoa</b>.</td><td>Vossas Excelências <b>se prepararam</b>. / Vossa Majestade <b>fez</b>…</td></tr>
+      <tr><td><b>Porcentagens e frações</b></td><td>Com o número <b>ou</b> com o substantivo. Com "metade", 3ª do singular.</td><td>55% da população não <b>acredita</b> / <b>acreditam</b>. Metade da população não <b>acredita</b>.</td></tr>
+      <tr><td><b>Verbo SER</b></td><td>Concorda com o sujeito <b>ou</b> com a característica. Nas horas, segue o numeral.</td><td>A vida <b>é</b> / <b>são</b> flores e espinhos. <b>São</b> duas horas, mas <b>é</b> meio-dia e meia.</td></tr>
+      <tr><td><b>HAVER</b> = existir ou tempo decorrido</td><td>Impessoal: <b>sempre</b> 3ª do singular.</td><td><b>Havia</b> várias situações. <b>Houve</b> vários sons. <b>Há</b> anos não sinto medo.</td></tr>
+      <tr><td><b>HAVER</b> como auxiliar</td><td>Aí concorda normalmente.</td><td>Eles <b>haviam</b> vivido várias situações.</td></tr>
+      <tr><td><b>FAZER</b> indicando tempo</td><td>Impessoal: 3ª do singular.</td><td><b>Faz</b> três minutos que estou esperando.</td></tr>
+      <tr><td><b>FAZER</b> pessoal</td><td>Concorda com o sujeito.</td><td>Muitos pais <b>fazem</b> silêncio nessas situações.</td></tr>
+      <tr><td><b>Fenômenos da natureza</b><br>(chover, nevar, trovejar, anoitecer, ventar, gear…)</td><td>3ª do singular, oração sem sujeito.</td><td>Em uma sexta-feira 13, <b>choveu</b> e <b>trovejou</b> acima do normal.</td></tr>
+      <tr><td><b>Fenômenos em sentido figurado</b></td><td>Viram pessoais e concordam com o sujeito.</td><td><b>Choveram</b> elogios aos contos de mistério.</td></tr>
+    </table>
+    <div class="peg"><b>⚠️ As três que mais derrubam:</b> <i>haviam</i> no lugar de <i>havia</i>; <i>fazem dois anos</i> no lugar de <i>faz dois anos</i>; e o verbo concordando com a palavra mais perto em vez do núcleo do sujeito.</div>
+    <div class="postit"><b>📌 Dica de prova</b>Quando ver haver ou fazer, pergunte: dá para trocar por "existir" ou por "tempo que passou"? Se der, o verbo trava no singular e não sai de lá.</div>
+  </div>
+  <label class="done" id="d6"><input type="checkbox" onchange="marcar(6,this.checked)"> Já estudei este módulo</label>
+</section>
+
+<section class="mod">
+  <h2><span class="num">Extra</span> Glossário da Central</h2>
+  <div class="bd"><dl class="glos">
+    <dt>Frase</dt><dd>Enunciado com sentido completo, com ou sem verbo.</dd>
+    <dt>Oração</dt><dd>Frase, ou parte dela, que contém verbo.</dd>
+    <dt>Núcleo</dt><dd>A palavra mais importante de um termo. No sujeito é substantivo ou pronome; no predicado é o verbo.</dd>
+    <dt>Locução verbal</dt><dd>Dois ou mais verbos que expressam uma ação só (eram lavados, estava consertando).</dd>
+    <dt>Vocativo</dt><dd>Chamamento dirigido a alguém. Não faz parte do sujeito nem do predicado.</dd>
+    <dt>Determinante</dt><dd>Palavra que acompanha o substantivo acrescentando características.</dd>
+    <dt>Adjetivo uniforme</dt><dd>Adjetivo comum de dois gêneros: varia só em número (feliz / felizes).</dd>
+    <dt>Substantivo adjetivado</dt><dd>Substantivo usado como adjetivo; fica invariável (tons pastel).</dd>
+    <dt>Predicativo</dt><dd>Termo que atribui qualidade ao sujeito ou ao objeto.</dd>
+    <dt>Verbo impessoal</dt><dd>Verbo que não tem sujeito; fica na 3ª pessoa do singular.</dd>
+    <dt>Sujeito partitivo</dt><dd>Sujeito formado por expressão que indica parte de um todo (a maioria de, a metade de).</dd>
+  </dl>
+  <p style="margin-top:14px"><b>Minhas anotações</b></p>
+  <textarea class="notas" id="notas" oninput="anotar(this.value)" placeholder="Escreva aqui o que você quer revisar na véspera da prova…"></textarea>
+  </div>
+</section>
+
+  <div class="nextbar">
+    <a href="quiz.html">← 🎯 Quiz</a>
+    <a class="go" href="simulado.html">Próximo material: 📝 Simulado →</a>
+  </div>
+</div>
+
+<div class="modal" id="modal"><div class="box">
+  <h3 id="mt">Confirmar</h3><div id="mb"></div>
+  <div class="row"><button onclick="fecharModal()">Cancelar</button><button class="primary" id="mok">Confirmar</button></div>
+</div></div>
+
+<script>
+var TOTAL=7;
+var MEM={};
+function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){if(v===undefined)return MEM[k]===undefined?null:MEM[k];MEM[k]=v;}return null;}
+var KEY="cs7_resumo_v1";
+var S={mods:[],notas:"",rolagem:0,quando:null};
+function carregar(){var raw=store(KEY);if(raw){try{var o=JSON.parse(raw);if(o&&o.mods)S=o;}catch(e){}}}
+function salvar(){S.quando=new Date().toISOString();try{store(KEY,JSON.stringify(S));}catch(e){}pintarStatus();}
+function pintarStatus(){
+  var d=S.quando?new Date(S.quando):null;
+  document.getElementById("status").textContent=d?("Salvo automaticamente em "+d.toLocaleDateString("pt-BR")+" às "+d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})+" · rolagem máxima "+S.rolagem+"%"):"Nada salvo ainda — pode começar.";
+}
+function marcar(i,v){S.mods[i]=!!v;salvar();pintar();}
+function anotar(v){S.notas=v;salvar();}
+function pintar(){
+  var n=0;
+  for(var i=0;i<TOTAL;i++){
+    var el=document.getElementById("d"+i);if(!el)continue;
+    var inp=el.querySelector("input");
+    inp.checked=!!S.mods[i];
+    el.className="done"+(S.mods[i]?" ok":"");
+    if(S.mods[i])n++;
+  }
+  document.getElementById("pg").style.width=Math.round(n/TOTAL*100)+"%";
+  document.getElementById("pgtxt").textContent=n+" de "+TOTAL;
+  document.getElementById("notas").value=S.notas||"";
+}
+window.addEventListener("scroll",function(){
+  var h=document.body.scrollHeight-window.innerHeight;
+  if(h<=0)return;
+  var p=Math.min(100,Math.round(window.scrollY/h*100));
+  if(p>(S.rolagem||0)){S.rolagem=p;salvar();}
+});
+function exportar(){
+  var out={material:"resumo",kit:"Central de Sintonia — Português 7º ano",quando:S.quando,
+    rolagemMaxima:S.rolagem||0,modulosEstudados:0,modulos:[],notas:S.notas||""};
+  var nomes=["A oração e os dois termos essenciais","Os quatro tipos de sujeito","Concordância nominal: regra geral","Adjetivo antes e depois","Vários adjetivos, numerais e invariáveis","Palavras que causam confusão","Concordância verbal: regra e exceções"];
+  for(var i=0;i<TOTAL;i++){out.modulos.push({n:i+1,titulo:nomes[i],estudado:!!S.mods[i]});if(S.mods[i])out.modulosEstudados++;}
+  var blob=new Blob([JSON.stringify(out,null,2)],{type:"application/json"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="resumo-central-de-sintonia.json";a.click();
+}
+function importar(inp){
+  var f=inp.files[0];if(!f)return;var r=new FileReader();
+  r.onload=function(){try{var o=JSON.parse(r.result);
+    if(o&&o.modulos){S={mods:[],notas:o.notas||"",rolagem:o.rolagemMaxima||0,quando:o.quando||null};
+      for(var i=0;i<o.modulos.length;i++)S.mods[i]=!!o.modulos[i].estudado;
+      salvar();pintar();}
+  }catch(e){}inp.value="";};
+  r.readAsText(f);
+}
+function pedirZerar(){
+  document.getElementById("mt").textContent="Zerar tudo?";
+  document.getElementById("mb").innerHTML="<p class='hint'>Isso desmarca os módulos e apaga as suas anotações.</p>";
+  document.getElementById("mok").onclick=function(){S={mods:[],notas:"",rolagem:0,quando:null};salvar();pintar();fecharModal();};
+  document.getElementById("modal").classList.add("on");
+}
+function fecharModal(){document.getElementById("modal").classList.remove("on");}
+carregar();pintar();pintarStatus();
+</script>
+</body>
+</html>

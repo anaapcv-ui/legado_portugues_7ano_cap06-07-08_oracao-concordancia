@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leitura Guiada — Central de Sintonia</title>
+<style>
+:root{
+  --bg:#0d1119; --panel:#151c2a; --panel2:#1c2537; --line:#2a3550;
+  --txt:#e6edf7; --dim:#9aa9c2; --neon:#3ddc97; --amber:#ffb454;
+  --red:#ff5f6d; --blue:#5aa9ff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);
+  font-family:"Segoe UI",system-ui,-apple-system,sans-serif;font-size:17px;line-height:1.65}
+a{color:var(--neon)}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px 80px}
+header.top{background:linear-gradient(135deg,#0f2b22,#123a2c 55%,#0d1119);
+  border-bottom:3px solid var(--neon);padding:26px 16px 20px}
+header.top .inner{max-width:900px;margin:0 auto}
+.kit{font-size:.78rem;letter-spacing:.22em;color:var(--neon);text-transform:uppercase;font-weight:700}
+h1{margin:6px 0 4px;font-size:1.75rem;line-height:1.2}
+.sub{color:var(--dim);font-size:.95rem;margin:0}
+nav.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+nav.tabs a{display:inline-block;padding:8px 14px;border-radius:999px;font-size:.85rem;
+  text-decoration:none;background:var(--panel2);color:var(--dim);border:1px solid var(--line)}
+nav.tabs a.on{background:var(--neon);color:#07120d;font-weight:700;border-color:var(--neon)}
+.bar{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:12px 14px;margin:18px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.85rem}
+.bar .status{color:var(--dim);flex:1 1 180px}
+button{font-family:inherit;font-size:.85rem;padding:8px 13px;border-radius:9px;cursor:pointer;
+  border:1px solid var(--line);background:var(--panel2);color:var(--txt)}
+button:hover{border-color:var(--neon)}
+button.primary{background:var(--neon);color:#07120d;font-weight:700;border-color:var(--neon)}
+button.primary:disabled{background:var(--panel2);color:#5b6a84;border-color:var(--line);cursor:not-allowed;font-weight:400}
+.signal{height:10px;border-radius:99px;background:var(--panel2);overflow:hidden;border:1px solid var(--line)}
+.signal i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--neon));transition:width .4s}
+.signal-lab{display:flex;justify-content:space-between;font-size:.78rem;color:var(--dim);margin:6px 2px 0}
+.bloco{background:var(--panel);border:1px solid var(--line);border-radius:16px;margin:18px 0;overflow:hidden}
+.bloco.lock{opacity:.5}
+.bloco h2{margin:0;padding:16px 18px;font-size:1.12rem;background:var(--panel2);
+  border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.canal{font-size:.72rem;letter-spacing:.16em;color:var(--neon);font-weight:700}
+.bd{padding:18px}
+.bd p{margin:0 0 14px}
+.locked-msg{padding:18px;color:var(--dim);font-size:.92rem}
+.q{border-top:1px dashed var(--line);padding-top:16px;margin-top:18px}
+.q.vermelha{border-left:4px solid var(--red);padding-left:12px;background:rgba(255,95,109,.07);border-radius:0 10px 10px 0}
+.qlab{font-weight:700;margin-bottom:8px;display:block}
+.tag{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:99px;
+  background:var(--panel2);border:1px solid var(--line);color:var(--dim);margin-left:6px;font-weight:400}
+textarea{width:100%;min-height:82px;background:#0b0f16;color:var(--txt);border:1px solid var(--line);
+  border-radius:10px;padding:10px 12px;font-family:inherit;font-size:.95rem;resize:vertical}
+textarea:focus{outline:none;border-color:var(--neon)}
+.alerta{background:rgba(255,180,84,.12);border:1px solid var(--amber);color:#ffd9a3;
+  border-radius:10px;padding:11px 13px;margin-top:10px;font-size:.9rem}
+.alerta b{color:var(--amber)}
+.fixo{background:rgba(255,95,109,.12);border:1px solid var(--red);color:#ffc2c7;
+  border-radius:10px;padding:11px 13px;margin-top:10px;font-size:.9rem}
+.modelo{background:rgba(61,220,151,.09);border:1px solid rgba(61,220,151,.45);
+  border-radius:10px;padding:11px 13px;margin-top:10px;font-size:.92rem}
+.modelo b{color:var(--neon)}
+.chk{margin-top:10px;font-size:.9rem}
+.chk .item{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:7px 0;
+  background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.chk .item span{flex:1 1 180px}
+.chk button{padding:5px 12px;font-size:.8rem}
+.chk button.sim.on{background:var(--neon);color:#07120d;font-weight:700;border-color:var(--neon)}
+.chk button.nao.on{background:var(--red);color:#2a0409;font-weight:700;border-color:var(--red)}
+.st{display:inline-block;margin-left:8px;font-size:.8rem;padding:2px 10px;border-radius:99px}
+.st.ok{background:rgba(61,220,151,.18);color:var(--neon)}
+.st.rev{background:rgba(255,180,84,.18);color:var(--amber)}
+.peg{background:rgba(255,95,109,.1);border:1px solid var(--red);border-radius:16px;padding:18px;margin:26px 0}
+.peg h2{margin:0 0 12px;color:var(--red);font-size:1.15rem}
+.peg ol{margin:0;padding-left:20px}
+.peg li{margin-bottom:10px}
+.revbox{background:var(--panel);border:1px solid var(--amber);border-radius:16px;padding:18px;margin:26px 0}
+.revbox h2{margin:0 0 10px;color:var(--amber);font-size:1.15rem}
+.revbox ul{margin:0;padding-left:20px;color:#ffd9a3}
+table{width:100%;border-collapse:collapse;margin-top:12px;font-size:.9rem}
+th,td{border:1px solid var(--line);padding:9px 11px;text-align:left}
+th{background:var(--panel2);color:var(--neon)}
+.cov{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;margin:26px 0}
+.cov h2{margin:0 0 6px;font-size:1.15rem}
+.nextbar{display:flex;justify-content:flex-end;margin:30px 0 0}
+.nextbar a{display:inline-block;padding:12px 20px;border-radius:12px;background:var(--neon);
+  color:#07120d;font-weight:700;text-decoration:none}
+.modal{position:fixed;inset:0;background:rgba(5,8,13,.8);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+.modal.on{display:flex}
+.modal .box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;max-width:420px;width:100%}
+.modal h3{margin:0 0 10px}
+.modal .row{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.hint{color:var(--dim);font-size:.85rem}
+@media(max-width:560px){h1{font-size:1.4rem}body{font-size:16px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="inner">
+  <div class="kit">Central de Sintonia · 7º ano · Língua Portuguesa</div>
+  <h1>📖 Leitura Guiada — Sala de Escuta</h1>
+  <p class="sub">Cap. 6 Termos essenciais da oração · Cap. 7 Concordância nominal · Cap. 8 Concordância verbal</p>
+  <nav class="tabs">
+    <a class="on" href="leitura-guiada.html">📖 Leitura Guiada</a>
+    <a href="quiz.html">🎯 Quiz</a>
+    <a href="resumo.html">🗺️ Resumo</a>
+    <a href="simulado.html">📝 Simulado</a>
+    <a href="index.html">🏠 Início</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <div class="bar">
+    <div class="status" id="status">Carregando…</div>
+    <button onclick="exportar()">📥 Exportar</button>
+    <button onclick="document.getElementById('imp').click()">📤 Importar</button>
+    <input type="file" id="imp" accept="application/json" style="display:none" onchange="importar(this)">
+    <button onclick="pedirZerar()">🗑️ Zerar tudo</button>
+  </div>
+
+  <div class="signal"><i id="sig"></i></div>
+  <div class="signal-lab"><span>Força do sinal</span><span id="sigtxt">0 de 9 canais sintonizados</span></div>
+
+  <p class="hint" style="margin-top:18px">Como funciona: cada canal traz uma explicação e <b>3 perguntas para você escrever a resposta</b>.
+  O botão <b>Sintonizar canal</b> só liga quando as três estiverem preenchidas. Escreva com as suas palavras —
+  copiar o texto do canal trava a conferência.</p>
+
+  <div id="blocos"></div>
+
+  <div class="peg">
+    <h2>⚠️ 10 pegadinhas que a prova adora</h2>
+    <ol>
+      <li><b>Frase não é oração.</b> "Que susto!" é frase e não é oração, porque não tem verbo. Toda oração é frase; nem toda frase é oração.</li>
+      <li><b>O artigo não é núcleo.</b> Em "as crianças", o núcleo do sujeito é <i>crianças</i>, nunca <i>as</i>.</li>
+      <li><b>Sujeito desinencial existe, "sem sujeito" é outra coisa.</b> "Recebi um convite" tem sujeito (eu, escondido no verbo). "Choveu ontem" não tem sujeito nenhum.</li>
+      <li><b>Palavra no meio não muda o verbo.</b> Em "O time de estrelas, naquele verão de 2023, ganhou o torneio", o verbo concorda com <i>time</i> (singular), não com <i>estrelas</i>.</li>
+      <li><b>Adjetivo antes de dois substantivos concorda com o mais próximo.</b> "Ele queria novas ideias e argumentos" está certo.</li>
+      <li><b>Gêneros diferentes no plural pedem masculino.</b> "O pai e a professora aflitos" — nunca "aflitas".</li>
+      <li><b>Substantivo adjetivado não varia.</b> "olhos esmeralda", "tons pastel" — sem S.</li>
+      <li><b>Meio × meia, mesmo × mesmo.</b> "Ando meio desligada" (advérbio, invariável) e "É meio-dia e meia" (numeral, concorda com hora). "Foi incrível, mesmo" (advérbio) e "Eles mesmos fizeram" (adjetivo).</li>
+      <li><b>Anexo varia, "em anexo" não.</b> "As fotos seguem anexas" / "Seguem as fotos em anexo".</li>
+      <li><b>Haver e fazer impessoais ficam no singular para sempre.</b> "Havia várias situações", "Faz três minutos que estou esperando" — nunca <i>haviam</i> nem <i>fazem</i> nesses casos.</li>
+    </ol>
+  </div>
+
+  <div class="revbox">
+    <h2>🔁 Para revisar antes da prova</h2>
+    <ul id="revlist"><li>Nada por aqui ainda — conclua os canais para a lista se montar sozinha.</li></ul>
+  </div>
+
+  <div class="cov">
+    <h2>🗂️ Cobertura: cada tópico do escopo em qual canal</h2>
+    <p class="hint">Confira se nada do recado da professora ficou de fora.</p>
+    <table>
+      <tr><th>Tópico do escopo</th><th>Capítulo</th><th>Canal</th></tr>
+      <tr><td>Frase × oração; os dois termos essenciais</td><td>6 e 8</td><td>01</td></tr>
+      <tr><td>Predicado, locução verbal, núcleo, análise morfossintática</td><td>6</td><td>02</td></tr>
+      <tr><td>Sujeito simples, composto, desinencial e oração sem sujeito</td><td>6 e 8</td><td>03</td></tr>
+      <tr><td>Concordância nominal: determinantes e regra geral</td><td>7</td><td>04</td></tr>
+      <tr><td>Adjetivo anteposto e posposto; predicativo do objeto e do sujeito</td><td>7</td><td>05</td></tr>
+      <tr><td>Um substantivo e vários adjetivos; numerais ordinais; adjetivos uniformes; substantivo adjetivado</td><td>7</td><td>06</td></tr>
+      <tr><td>Mesmo, próprio, anexo, obrigado, quites, meio/meia, só/sós</td><td>7</td><td>07</td></tr>
+      <tr><td>Concordância verbal: regra geral (número e pessoa)</td><td>8</td><td>08</td></tr>
+      <tr><td>Partitivos, quantidade aproximada, nomes só no plural, pronomes de tratamento, porcentagens, verbo ser, verbos impessoais</td><td>8</td><td>09</td></tr>
+    </table>
+  </div>
+
+  <div class="nextbar"><a href="quiz.html">Próximo material: 🎯 Quiz →</a></div>
+</div>
+
+<div class="modal" id="modal"><div class="box">
+  <h3 id="mt">Confirmar</h3><div id="mb"></div>
+  <div class="row"><button onclick="fecharModal()">Cancelar</button><button class="primary" id="mok">Confirmar</button></div>
+</div></div>
+
+<script>
+var DATA=[
+{
+ c:"01", t:"Quem transmite e o que é transmitido",
+ p:[
+ "Pensa numa transmissão de rádio: para a mensagem chegar, precisa de alguém falando e de alguma coisa sendo dita. Na oração funciona igual. Ela tem dois termos essenciais, o sujeito e o predicado, e sem esses dois a mensagem fica pela metade.",
+ "Antes disso, vale separar duas palavras que vivem sendo confundidas. Frase é qualquer enunciado com sentido completo, mesmo sem verbo: Que medo! já é uma frase inteira. Oração é uma frase, ou um pedaço dela, que tem verbo dentro: Nunca mais voltei àquela casa! é oração por causa do verbo voltei. Resumindo: toda oração é frase, mas nem toda frase é oração.",
+ "O sujeito é o ser sobre o qual a oração fala, aquele que pratica a ação ou de quem se diz alguma coisa. A parte mais importante do sujeito chama-se núcleo, e esse núcleo é sempre um substantivo ou um pronome. Já o predicado é tudo o que se declara a respeito do sujeito.",
+ "Em Lucas correu de medo, Lucas é o sujeito, quem correu, e correu de medo é o predicado, o que foi dito sobre ele. Guarde essa dupla com carinho: é com o núcleo do sujeito que o verbo vai ter que combinar mais para a frente, quando o assunto virar concordância."
+ ],
+ q:[
+  {tx:"Com as suas palavras, qual é a diferença entre frase e oração?", tipo:"conceito",
+   mod:"Frase é qualquer enunciado com sentido completo, com ou sem verbo (Que susto!). Oração é a frase, ou parte dela, que tem verbo (Ele gritou no corredor).",
+   chk:["Minha resposta disse que a frase pode não ter verbo?","Minha resposta disse que a oração precisa ter verbo?"]},
+  {tx:"Invente uma oração SUA, que não esteja no texto acima, e escreva separadamente qual é o sujeito e qual é o predicado dela.", tipo:"aplicação",
+   mod:"Exemplo: Minha prima esqueceu a mochila no ônibus. Sujeito: minha prima. Predicado: esqueceu a mochila no ônibus.",
+   chk:["Escrevi uma oração inventada por mim, com verbo?","Separei qual é o sujeito?","Separei qual é o predicado?"]},
+  {tx:"Transforme a frase Que barulho estranho! em uma oração, acrescentando um verbo. Depois diga qual é o núcleo do sujeito da oração que você criou.", tipo:"aplicação",
+   mod:"Exemplo: Aquele barulho estranho assustou o cachorro. O núcleo do sujeito é barulho, porque é o substantivo mais importante do sujeito (aquele e estranho só acompanham).",
+   chk:["A minha oração tem verbo?","Apontei o núcleo do sujeito?","O núcleo que escolhi é um substantivo ou pronome?"]}
+ ]
+},
+{
+ c:"02", t:"O predicado e o seu núcleo",
+ p:[
+ "O predicado é o time inteiro que fica do lado da declaração. Dentro dele cabe tudo o que a oração tem, menos o sujeito e o vocativo, aquele chamamento do tipo Joana, vem cá! E ele nunca aparece sem verbo: ou traz um verbo sozinho, ou traz uma locução verbal.",
+ "Locução verbal é quando dois ou mais verbos se juntam para expressar uma ação só. Em as roupas eram lavadas, a expressão eram lavadas é uma locução verbal: são duas palavras, mas uma ação única.",
+ "Dentro do predicado existe uma peça mais importante que as outras, o núcleo, que é a parte que carrega a ideia principal. Em As crianças brincavam com piões, soldadinhos de chumbo e bonecas de pano, o predicado é brincavam com piões, soldadinhos de chumbo e bonecas de pano, e o núcleo é o verbo brincar. Todo o resto só conta com o que se brincava.",
+ "Duas expressões aparecem muito aqui. Análise morfológica é olhar a palavra sozinha e dizer a que classe ela pertence: substantivo, adjetivo, verbo, advérbio. Análise morfossintática é olhar a palavra dentro da oração e dizer que papel ela está fazendo ali: sujeito, predicado, núcleo. A primeira olha a peça; a segunda olha a peça funcionando na máquina."
+ ],
+ q:[
+  {tx:"Escreva uma oração sua que tenha locução verbal e marque a locução entre asteriscos, assim: *estava lendo*.", tipo:"aplicação",
+   mod:"Exemplo: Meu irmão *estava consertando* a bicicleta no quintal. A locução é estava consertando: dois verbos, uma ação só.",
+   chk:["Escrevi uma oração inventada por mim?","A expressão que marquei tem dois ou mais verbos?","Ela expressa uma ação só?"]},
+  {tx:"Na oração O vizinho estava consertando o portão, escreva qual é o predicado inteiro e qual é o núcleo dele.", tipo:"aplicação",
+   mod:"Predicado: estava consertando o portão. Núcleo: a locução verbal estava consertando, do verbo consertar.",
+   chk:["Escrevi o predicado inteiro, sem incluir o sujeito?","Apontei o verbo (ou a locução) como núcleo?"]},
+  {tx:"Explique para um colega mais novo a diferença entre análise morfológica e análise morfossintática, usando um exemplo inventado por você.", tipo:"conceito",
+   mod:"A morfológica olha a palavra sozinha e diz a classe dela; a morfossintática olha a palavra dentro da oração e diz a função. Exemplo: em O cachorro latiu, a palavra cachorro é um substantivo (morfológica) e é o núcleo do sujeito (morfossintática).",
+   chk:["Disse que a morfológica olha a classe da palavra sozinha?","Disse que a morfossintática olha a função dentro da oração?","Dei um exemplo meu?"]}
+ ]
+},
+{
+ c:"03", t:"Os quatro tipos de sujeito",
+ p:[
+ "Nem todo sujeito se apresenta do mesmo jeito, e reconhecer o tipo é o que evita errar o verbo depois.",
+ "Sujeito simples é o que tem um núcleo só. Em As crianças brincavam com piões, o núcleo é crianças, porque o as é apenas um artigo que acompanha e não tem sentido sozinho. Em Emanuel aprecia filmes de terror, o núcleo é Emanuel. Sujeito composto é o que tem mais de um núcleo: em As roupas, as toalhas e os lençóis eram lavados em tanques ou bacias existem três núcleos, e em Emanuel e Sônia apreciam filmes de terror existem dois.",
+ "Sujeito desinencial é o que não está escrito, mas pode ser descoberto pela terminação do verbo. Em Gosto de ler reportagens ninguém escreveu eu, só que a terminação de gosto entrega a primeira pessoa do singular. A mesma coisa acontece em Recebi um convite para uma festa de Halloween! e em Fiquei tenso o tempo todo durante o novo filme de terror.",
+ "Por último vem a oração sem sujeito, que aparece com verbos impessoais. Em Choveu muito ontem de manhã não dá nem para perguntar quem choveu: chover aqui é fenômeno da natureza, e a oração simplesmente não tem sujeito. Cuidado para não confundir esse caso com o sujeito desinencial, que tem sujeito sim, só está escondido no verbo."
+ ],
+ q:[
+  {tx:"Escreva uma oração sua com sujeito composto falando de algo da sua casa e liste os núcleos desse sujeito.", tipo:"aplicação",
+   mod:"Exemplo: O micro-ondas e a geladeira pararam de funcionar no mesmo dia. Núcleos: micro-ondas e geladeira.",
+   chk:["A minha oração tem mais de um núcleo no sujeito?","Listei os núcleos separadamente?","O verbo ficou no plural?"]},
+  {tx:"Pegue a oração Nós assistimos ao filme escondidos e reescreva com sujeito desinencial. Depois explique como ainda dá para saber quem é o sujeito.", tipo:"aplicação",
+   mod:"Assistimos ao filme escondidos. Dá para saber pelo verbo: a terminação de assistimos indica a primeira pessoa do plural, ou seja, nós.",
+   chk:["Tirei o pronome do começo da frase?","Expliquei que o verbo mostra quem é o sujeito?","Citei a pessoa e o número (1ª do plural)?"]},
+  {tx:"Dê um exemplo SEU de oração sem sujeito e explique por que ela não tem sujeito.", tipo:"aplicação",
+   mod:"Exemplo: Nevou na serra durante a madrugada. Não tem sujeito porque nevar indica fenômeno da natureza: é verbo impessoal e não dá para perguntar quem nevou.",
+   chk:["Usei um verbo de fenômeno da natureza ou outro verbo impessoal?","Expliquei que não existe ninguém praticando a ação?","Evitei confundir com sujeito desinencial?"]}
+ ]
+},
+{
+ c:"04", t:"Concordância nominal: a regra geral",
+ p:[
+ "Até aqui o verbo combinava com o sujeito. Agora entra outra combinação, a do substantivo com as palavras que andam junto dele. Isso é a concordância nominal.",
+ "Essas palavras que acompanham o substantivo chamam-se determinantes. O determinante acrescenta uma característica: diz se é um ou vários, de quem é, qual deles, como é. Fazem esse papel o artigo definido e indefinido (o, a, os, as, um, uma), o pronome demonstrativo (esse, aquela, estes), o possessivo (meu, sua, teus), o indefinido (todo, alguns, muitas), o oblíquo (-lo, -la, -nas), o numeral (primeiro, duas) e o adjetivo ou a locução adjetiva (bonito, de aço, das abelhas).",
+ "A regra geral cabe em uma linha: o determinante concorda com o substantivo em gênero, masculino ou feminino, e em número, singular ou plural.",
+ "Olhe o trecho todos os homens, que seu engajamento é importante para o mundo. A palavra homens é masculina e plural, então todos e os também ficam masculinos e plurais. Engajamento é masculino singular, e por isso seu fica no masculino singular. Mundo também é masculino singular, e leva o artigo o. A dica prática é sempre a mesma: primeiro ache o substantivo, porque quem manda na concordância nominal é ele."
+ ],
+ q:[
+  {tx:"O que é um determinante? Responda com as suas palavras, sem copiar o texto do canal.", tipo:"conceito",
+   mod:"Determinante é a palavra que acompanha o substantivo e acrescenta uma característica a ele, como artigo, pronome, numeral ou adjetivo. Ele precisa combinar com o substantivo em gênero e número.",
+   chk:["Disse que o determinante acompanha o substantivo?","Disse que ele concorda em gênero e número?","Dei pelo menos um exemplo de classe de determinante?"]},
+  {tx:"Escreva uma frase sua com pelo menos três substantivos e, ao lado, liste o determinante de cada um e se ficou no singular ou no plural.", tipo:"aplicação",
+   mod:"Exemplo: Aquelas meninas guardaram os cadernos na minha mochila. Meninas: aquelas, feminino plural. Cadernos: os, masculino plural. Mochila: minha, feminino singular.",
+   chk:["A minha frase tem três substantivos ou mais?","Listei o determinante de cada um?","Disse se cada um ficou no singular ou no plural?"]},
+  {tx:"Corrija a frase errada Aquelas menino trouxe dois mochila nova e explique o que você mudou e por quê.", tipo:"aplicação",
+   mod:"Aquele menino trouxe duas mochilas novas. Aquelas virou aquele porque menino é masculino singular; dois virou duas e mochila virou mochilas novas porque o numeral e o adjetivo concordam com o substantivo feminino no plural.",
+   chk:["Corrigi o determinante do primeiro substantivo?","Corrigi o numeral e o substantivo que estavam brigando?","Expliquei que quem manda é o substantivo?"]}
+ ]
+},
+{
+ c:"05", t:"Adjetivo antes e depois do substantivo",
+ p:[
+ "Quando um adjetivo se refere a mais de um substantivo, a posição dele muda a regra.",
+ "Adjetivo anteposto, ou seja, que vem antes, concorda com o substantivo mais próximo. Em Ele queria novas ideias e argumentos, a palavra novas está colada em ideias, então fica feminina e plural, mesmo com argumentos sendo masculino logo em seguida.",
+ "Adjetivo posposto, que vem depois, dá duas opções. Se os substantivos forem do mesmo gênero, ele pode concordar só com o mais próximo ou ir para o plural: A mãe e a professora aflita aguardavam o aluno ou A mãe e a professora aflitas aguardavam o aluno. Se forem de gêneros diferentes, vale o mais próximo ou o plural masculino: O pai e a professora aflita ou O pai e a professora aflitos.",
+ "Existe um aviso do livro que costuma virar questão de prova: as duas formas estão corretas, mas o plural deixa mais claro que a característica é de todos os substantivos. Em A indústria oferece localização e atendimento perfeito dá a impressão de que só o atendimento é perfeito; em localização e atendimento perfeitos fica claro que os dois são. Aqui também entram dois nomes técnicos. Predicativo do objeto é o termo que modifica o objeto: Aquele olhar tornou bela a noite e o dia, concordando com o mais próximo, ou tornou belos a noite e o dia, no plural masculino porque os gêneros são diferentes. Predicativo do sujeito é o que expressa uma qualidade do sujeito, ligada por um verbo de ligação: Ainda estava interditada a rua e o túnel ou Ainda estavam interditados a rua e o túnel."
+ ],
+ q:[
+  {tx:"Escreva uma frase sua com um adjetivo ANTES de dois substantivos de gêneros diferentes e explique com qual deles o adjetivo concordou.", tipo:"aplicação",
+   mod:"Exemplo: Comprei novos cadernos e canetas. O adjetivo novos concordou com cadernos, que é o substantivo mais próximo, mesmo com canetas sendo feminino.",
+   chk:["O adjetivo da minha frase veio antes dos dois substantivos?","Os dois substantivos são de gêneros diferentes?","Expliquei que ele concordou com o mais próximo?"]},
+  {tx:"Complete de DUAS maneiras corretas: Comprei o caderno e a borracha ______ (novo / nova / novos). Escreva as duas versões e explique a diferença.", tipo:"aplicação",
+   mod:"Comprei o caderno e a borracha nova (o adjetivo posposto concorda só com o substantivo mais próximo) e Comprei o caderno e a borracha novos (plural masculino, porque os dois substantivos são de gêneros diferentes).",
+   chk:["Escrevi a versão que concorda com o substantivo mais próximo?","Escrevi a versão no plural masculino?","Expliquei que o masculino aparece porque os gêneros são diferentes?"]},
+  {tx:"Por que o livro recomenda o plural em A indústria oferece localização e atendimento perfeitos? Explique e crie um exemplo seu com a mesma ideia.", tipo:"conceito",
+   mod:"Porque no plural fica claro que a qualidade vale para os dois substantivos, e não só para o mais próximo. Exemplo: A escola tem quadra e biblioteca reformadas deixa claro que as duas foram reformadas.",
+   chk:["Disse que o plural mostra que a característica é dos dois substantivos?","Disse que o singular pode dar a entender que vale só para o mais próximo?","Criei um exemplo meu?"]}
+ ]
+},
+{
+ c:"06", t:"Vários adjetivos, numerais e palavras que não variam",
+ p:[
+ "Agora é a situação contrária: um substantivo só, com vários adjetivos. Existem duas saídas. Na primeira, o substantivo fica no singular e o artigo se repete antes de cada adjetivo: A novela conquistou o espectador português e o brasileiro. Na segunda, o substantivo vai para o plural e o artigo não se repete: A novela conquistou os espectadores português e brasileiro.",
+ "Com numerais ordinais antepostos a um único substantivo acontece algo parecido: o substantivo pode ficar no singular, como em Chamei os alunos do oitavo e nono ano, ou no plural, como em Chamei os alunos do oitavo e nono anos. As duas estão corretas.",
+ "Há também adjetivos que só variam em número, nunca em gênero. São os chamados adjetivos comuns de dois gêneros, ou uniformes. A palavra importante é um deles: não existe importanta. Por isso escrevemos O engajamento das pessoas é muito importante! e Todos os engajamentos são importantes para as mudanças ocorrerem.",
+ "Por fim, o substantivo adjetivado. É quando um substantivo passa a funcionar como adjetivo, e nesse caso ele fica invariável em gênero e em número. Dizemos um tom pastel e apenas tons pastel, nunca pastéis; pedras com coloração esmeralda e olhos esmeralda, nunca esmeraldas. O substantivo está emprestando a cor, então não muda de forma."
+ ],
+ q:[
+  {tx:"Escreva das DUAS formas corretas: Chamei os alunos do sexto e sétimo ______ (ano / anos). Explique por que as duas valem.", tipo:"aplicação",
+   mod:"Chamei os alunos do sexto e sétimo ano e Chamei os alunos do sexto e sétimo anos. Com numerais ordinais antepostos a um único substantivo, ele pode ficar no singular ou no plural.",
+   chk:["Escrevi a versão no singular?","Escrevi a versão no plural?","Expliquei que a regra vale para numerais ordinais antepostos?"]},
+  {tx:"Crie uma frase sua com um substantivo adjetivado no plural (como pastel, esmeralda, cinza, gelo) e explique por que essa palavra não recebe S.", tipo:"aplicação",
+   mod:"Exemplo: Ela escolheu duas almofadas cinza para o sofá. A palavra cinza é um substantivo funcionando como adjetivo, e o substantivo adjetivado fica invariável em gênero e número.",
+   chk:["Usei um substantivo funcionando como adjetivo?","Deixei essa palavra sem S?","Expliquei que o substantivo adjetivado é invariável?"]},
+  {tx:"O que é um adjetivo comum de dois gêneros? Explique e dê um exemplo seu, usando-o no singular e no plural.", tipo:"conceito",
+   mod:"É o adjetivo que tem a mesma forma no masculino e no feminino, variando só em número. Exemplo: um menino feliz e umas meninas felizes.",
+   chk:["Disse que ele não muda entre masculino e feminino?","Disse que ele varia só em número?","Usei o meu exemplo no singular e no plural?"]}
+ ]
+},
+{
+ c:"07", t:"As palavras que derrubam todo mundo",
+ p:[
+ "Esta parte do capítulo é uma lista de armadilhas, e quase toda prova cobra pelo menos uma. A lógica é sempre a mesma: descobrir a classe da palavra. Se for advérbio, ela não muda. Se for adjetivo ou numeral, ela concorda.",
+ "Mesmo com sentido de realmente é advérbio e fica invariável: Aquela entrevista foi incrível, mesmo. Com sentido de próprio é adjetivo e varia: Eles mesmos desenvolveram as perguntas da entrevista. Próprio e anexo também são adjetivos e seguem o nome: As autorizações para a entrevista estão anexas neste e-mail, O áudio da entrevista está anexo à mensagem, Ele próprio elaborou as questões, Elas próprias fizeram a revisão. Só que a locução em anexo é adverbial e nunca muda: Segue o arquivo em anexo, Seguem as fotos em anexo.",
+ "Obrigado concorda com quem está falando: uma repórter diz Obrigada pela entrevista, um repórter diz Obrigado. Quando vira adjetivo, concorda com o nome: Infelizmente, nós fomos obrigados a remarcar a entrevista. Quites é adjetivo de dois gêneros e varia somente em número: Estamos quites, cada um fez a sua parte.",
+ "Meio tem três caras. Com sentido de um pouco é advérbio e não muda: Ando meio desligada. Com sentido de metade é numeral e concorda: Comi quase meio pote de sorvete, Meu irmão adora tomar meia xícara de chá, É meio-dia e meia. E ainda pode ser substantivo, a peça de roupa: Coloque suas meias no cesto. Só funciona igual: com sentido de somente é advérbio invariável, como em Só uma boa manchete não constrói uma boa entrevista; com sentido de sozinho é adjetivo e varia em número, como em As garotas ficaram sós. A expressão a sós é invariável: Elas conversaram a sós."
+ ],
+ q:[
+  {tx:"Escreva duas frases suas com a palavra mesmo: uma em que ela seja advérbio (invariável) e outra em que seja adjetivo (variável).", tipo:"aplicação",
+   mod:"Advérbio: O jogo foi emocionante, mesmo. Adjetivo: Elas mesmas organizaram a festa. No primeiro caso mesmo significa realmente; no segundo significa próprias e por isso concorda.",
+   chk:["Na primeira frase, mesmo significa realmente e ficou sem variar?","Na segunda frase, mesmo significa próprio e concordou?","As duas frases são minhas?"]},
+  {tx:"Corrija a frase Meio-dia e meio, as fotos seguem anexo e nós estamos quite, e explique cada correção.", tipo:"aplicação",
+   mod:"Meio-dia e meia, as fotos seguem anexas e nós estamos quites. Meia porque é numeral e concorda com hora, que está subentendida; anexas porque anexo é adjetivo e concorda com fotos; quites porque quites varia em número e o sujeito é plural.",
+   chk:["Troquei meio por meia e expliquei que concorda com hora?","Troquei anexo por anexas e expliquei que concorda com fotos?","Troquei quite por quites e expliquei que varia em número?"]},
+  {tx:"Se quem agradece é um menino e depois uma menina, como fica a palavra obrigado em cada caso? Escreva as duas frases e diga por quê.", tipo:"aplicação",
+   mod:"O menino diz Obrigado pela ajuda e a menina diz Obrigada pela ajuda, porque a expressão de agradecimento concorda com a pessoa que fala, ficando no masculino ou no feminino.",
+   chk:["Escrevi as duas frases, uma com obrigado e outra com obrigada?","Expliquei que a palavra concorda com quem está falando?"]}
+ ]
+},
+{
+ c:"08", t:"Concordância verbal: a regra geral",
+ p:[
+ "Agora a sintonia principal do capítulo 8: o verbo concorda com o núcleo do sujeito em número, singular ou plural, e em pessoa, primeira, segunda ou terceira.",
+ "Veja como isso funciona em frases seguidas. Em Ali perto, Charlie Brown abriu sua caixa de correio, o núcleo é Charlie Brown, terceira pessoa do singular, então o verbo abrir vira abriu. Em Pela primeira vez ela não estava vazia, o núcleo é ela, terceira do singular, e estar vira estava. Em Recebi um convite para uma festa de Halloween!, o sujeito é desinencial, eu, primeira do singular, e receber vira recebi.",
+ "Quando o sujeito é composto, o verbo vai para o plural: Charlie Brown e Linus aguardavam ansiosos a visita da Grande Abóbora. E quando o sujeito muda de pessoa, o verbo muda junto: Nós não dormiremos naquela casa mal-assombrada e Eu não dormirei naquela casa mal-assombrada.",
+ "A pegadinha favorita das provas é o sujeito extenso, aquele formado por várias palavras. Em O time de estrelas, naquele verão de 2023, ganhou o torneio de vôlei, o sujeito tem quatro palavras, mas o núcleo é time, que está no singular. A expressão naquele verão de 2023 é só uma locução adverbial de tempo que caiu no meio do caminho e não interfere em nada. O verbo ganhar concorda com time, terceira pessoa do singular: quem ganhou foi o time, e não as estrelas."
+ ],
+ q:[
+  {tx:"Crie uma oração sua com sujeito extenso, colocando palavras entre o núcleo e o verbo, e diga com quem o verbo concordou.", tipo:"aplicação",
+   mod:"Exemplo: A turma de alunos do sétimo ano, na semana passada, venceu o campeonato. O verbo venceu concordou com turma, núcleo do sujeito, terceira pessoa do singular.",
+   chk:["Coloquei palavras entre o núcleo do sujeito e o verbo?","Apontei qual é o núcleo do sujeito?","Disse a pessoa e o número com que o verbo concordou?"]},
+  {tx:"Reescreva Eu não dormirei naquela casa usando o sujeito nós e explique o que mudou no verbo.", tipo:"aplicação",
+   mod:"Nós não dormiremos naquela casa. O verbo passou da primeira pessoa do singular para a primeira pessoa do plural, mudando a terminação de dormirei para dormiremos.",
+   chk:["Troquei o sujeito para nós?","Mudei o verbo para o plural?","Expliquei que mudou a pessoa e o número?"]},
+  {tx:"Em O time de estrelas ganhou o torneio, por que o verbo fica no singular mesmo tendo a palavra estrelas no plural?", tipo:"conceito",
+   mod:"Porque o verbo concorda com o núcleo do sujeito, que é time e está no singular. A expressão de estrelas apenas acompanha o núcleo e não manda na concordância.",
+   chk:["Disse que o núcleo do sujeito é time?","Disse que o verbo concorda com o núcleo, não com a palavra mais perto?"]}
+ ]
+},
+{
+ c:"09", t:"Quando a concordância verbal foge da regra",
+ p:[
+ "Existem casos em que a regra geral abre exceção, e é exatamente deles que as provas mais gostam. Os primeiros são os sujeitos partitivos, formados por expressões como a maioria de, a metade de, grande número de, grande parte de, a maior parte de e a minoria de. Aqui o verbo pode concordar com o núcleo, no singular, ou com o substantivo plural que vem depois: A maioria dos estudantes se surpreendeu com o final do conto de terror e A maioria dos estudantes se surpreenderam com o final. As duas estão certas.",
+ "Nos sujeitos com quantidade aproximada, marcados por cerca de, mais de, menos de e perto de, o verbo concorda com o numeral, não com o núcleo: Cerca de quarenta mil pessoas assistiram ao show, Menos de quinze por cento dos estudantes apreciam contos de terror, Mais de um cãozinho foi adotado neste fim de semana. Cuidado com a exceção da exceção: quando mais de um traz ideia de troca ou reciprocidade, o verbo vai para o plural, como em Mais de um aluno se ajudaram durante a prova.",
+ "Nomes que só existem no plural dependem do artigo. Com artigo, o verbo vai para o plural: As Minas Gerais encantam os visitantes, Os Estados Unidos buscam a expansão de seu comércio. Sem artigo, fica no singular: Minas Gerais está no Sudeste, Estados Unidos fica na América do Norte. Já os pronomes de tratamento levam o verbo sempre para a terceira pessoa: Você conhece suas obrigações!, Vossas Excelências se prepararam para a viagem, Vossa Majestade fez uma coletiva de imprensa ontem. Com porcentagens e frações o verbo pode concordar com o número ou com o substantivo: 55% da população não acredita ou não acreditam em fantasmas; com metade, a concordância fica na terceira do singular.",
+ "O verbo ser tem liberdade: pode concordar com o sujeito ou com a característica, como em A vida são flores e espinhos e A vida é flores e espinhos. Nas horas, ele segue o numeral: São duas horas, mas É meio-dia e meia e É uma hora. Também vale Hoje são 31 de outubro, Foram 15 dias de férias e São 20 quilômetros da escola até a casa do João. Por último vêm os verbos impessoais, que não têm sujeito para concordar. Haver com sentido de existir ou de tempo decorrido fica sempre na terceira pessoa do singular: Havia várias situações amedrontadoras, Houve vários sons estranhos, Há anos não sinto mais medo do escuro. Como auxiliar, porém, ele concorda: Eles haviam vivido várias situações. Fazer indicando tempo decorrido também fica no singular: Faz três minutos que estou esperando. Quando é pessoal, concorda normalmente: Muitos pais fazem silêncio nessas situações. Os verbos de fenômeno da natureza, como amanhecer, anoitecer, nevar, chover, ventar, gear, trovejar, relampejar, orvalhar, escurecer e esquentar, ficam na terceira do singular: Em uma sexta-feira 13 sinistra, choveu e trovejou acima do normal. Mas se forem usados em sentido figurado, viram pessoais e concordam com o sujeito: Choveram elogios aos contos de mistério produzidos pelo 7º ano."
+ ],
+ q:[
+  {tx:"Escreva DUAS versões corretas de uma frase sua começando com A maioria dos... e explique por que as duas valem.", tipo:"aplicação",
+   mod:"Exemplo: A maioria dos alunos entregou o trabalho e A maioria dos alunos entregaram o trabalho. Com sujeito partitivo, o verbo pode concordar com o núcleo maioria, no singular, ou com o substantivo no plural que vem depois.",
+   chk:["Escrevi a versão com o verbo no singular?","Escrevi a versão com o verbo no plural?","Expliquei que isso acontece porque o sujeito é partitivo?"]},
+  {tx:"Corrija a frase Haviam muitos alunos na sala e fazem dois anos que estudo aqui, e explique cada correção.", tipo:"aplicação",
+   mod:"Havia muitos alunos na sala e faz dois anos que estudo aqui. Haver com sentido de existir é impessoal e fica na terceira do singular; fazer indicando tempo decorrido também é impessoal e não vai para o plural.",
+   chk:["Corrigi haviam para havia?","Corrigi fazem para faz?","Expliquei que os dois verbos são impessoais nesses sentidos?"]},
+  {tx:"Escreva uma frase com Minas Gerais ou Estados Unidos SEM artigo e outra COM artigo, mudando o verbo. Explique a diferença.", tipo:"aplicação",
+   mod:"Exemplo: Estados Unidos fica na América do Norte e Os Estados Unidos ficam na América do Norte. Sem artigo o verbo vai para o singular; com artigo, para o plural.",
+   chk:["Escrevi a frase sem artigo com o verbo no singular?","Escrevi a frase com artigo e o verbo no plural?","Expliquei que o artigo é o que decide?"]}
+ ]
+}
+];
+
+/* ---------- armazenamento seguro ---------- */
+var MEM={};
+function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){if(v===undefined)return MEM[k]===undefined?null:MEM[k];MEM[k]=v;}return null;}
+var KEY="cs7_leitura_v1";
+var S={blocos:{},quando:null};
+function carregar(){
+  var raw=store(KEY);
+  if(raw){try{var o=JSON.parse(raw);if(o&&o.blocos){S=o;}}catch(e){}}
+}
+function salvar(){
+  S.quando=new Date().toISOString();
+  try{store(KEY,JSON.stringify(S));}catch(e){}
+  pintarStatus();
+}
+function pintarStatus(){
+  var d=S.quando?new Date(S.quando):null;
+  var txt=d?("Salvo automaticamente em "+d.toLocaleDateString("pt-BR")+" às "+d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})):"Nada salvo ainda — pode começar.";
+  document.getElementById("status").textContent=txt;
+}
+
+/* ---------- normalização e anticópia ---------- */
+function norm(s){
+  return (s||"").toLowerCase()
+    .normalize("NFD").replace(/[̀-ͯ]/g,"")
+    .replace(/[^a-z0-9\s]/g," ")
+    .replace(/\s+/g," ").trim();
+}
+function palavras(s){var n=norm(s);return n?n.split(" "):[];}
+function runAt(A,i,alvo){
+  var L=0,maior=0;
+  while(i+L<A.length){
+    L++;
+    var frag=" "+A.slice(i,i+L).join(" ")+" ";
+    if(alvo.indexOf(frag)===-1){L--;break;}
+    maior=L;
+    if(L>40)break;
+  }
+  return maior;
+}
+function detectarCopia(resp,texto,pergunta){
+  var A=palavras(resp);
+  if(A.length<8)return false;
+  var T=" "+palavras(texto).join(" ")+" ";
+  var Q=" "+palavras(pergunta).join(" ")+" ";
+  var deQ=new Array(A.length).fill(false);
+  for(var i=0;i<A.length;i++){
+    var r=runAt(A,i,Q);
+    if(r>=4){for(var k=i;k<i+r;k++)deQ[k]=true;}
+  }
+  var maxRun=0,cobertas=new Array(A.length).fill(false);
+  for(var j=0;j<A.length;j++){
+    if(deQ[j])continue;
+    var rr=runAt(A,j,T);
+    if(rr>=5){
+      var limpo=0;
+      for(var m=j;m<j+rr;m++){if(!deQ[m]){cobertas[m]=true;limpo++;}}
+      if(limpo>maxRun)maxRun=limpo;
+    }
+  }
+  if(maxRun>=8)return true;
+  var validas=0,cob=0;
+  for(var z=0;z<A.length;z++){if(!deQ[z]){validas++;if(cobertas[z])cob++;}}
+  if(validas>=15&&cob/validas>0.6)return true;
+  return false;
+}
+
+/* ---------- render ---------- */
+function estBloco(i){
+  var b=S.blocos[i];
+  if(!b||!b.feito)return null;
+  var ok=true;
+  for(var q=0;q<3;q++){
+    var e=b.q[q];
+    if(!e)return "rev";
+    if(e.transcrita)ok=false;
+    var cc=e.chk||[];
+    for(var c=0;c<DATA[i].q[q].chk.length;c++){if(cc[c]!=="sim")ok=false;}
+  }
+  return ok?"ok":"rev";
+}
+function liberado(i){ if(i===0)return true; var b=S.blocos[i-1]; return !!(b&&b.feito); }
+
+function render(){
+  var host=document.getElementById("blocos");
+  host.innerHTML="";
+  for(var i=0;i<DATA.length;i++){
+    var d=DATA[i], lib=liberado(i), st=estBloco(i);
+    var sec=document.createElement("section");
+    sec.className="bloco"+(lib?"":" lock");
+    var h='<h2><span class="canal">Canal '+d.c+'</span><span>'+d.t+'</span>';
+    if(st==="ok")h+='<span class="st ok">✅ sintonizado</span>';
+    if(st==="rev")h+='<span class="st rev">🔁 revisar</span>';
+    h+='</h2>';
+    if(!lib){
+      h+='<div class="locked-msg">🔒 Este canal abre quando você sintonizar o Canal '+DATA[i-1].c+'.</div>';
+    }else{
+      h+='<div class="bd">';
+      for(var p=0;p<d.p.length;p++)h+="<p>"+d.p[p]+"</p>";
+      for(var q=0;q<3;q++){
+        var sv=(S.blocos[i]&&S.blocos[i].q&&S.blocos[i].q[q])||{};
+        var verm=sv.transcrita?" vermelha":"";
+        h+='<div class="q'+verm+'" id="q'+i+'_'+q+'">';
+        h+='<span class="qlab">'+(q+1)+'. '+d.q[q].tx+'<span class="tag">'+d.q[q].tipo+'</span></span>';
+        h+='<textarea id="t'+i+'_'+q+'" oninput="mudou('+i+')" placeholder="Escreva a sua resposta aqui…">'+(sv.resp||"")+'</textarea>';
+        h+='<div id="av'+i+'_'+q+'"></div>';
+        h+='</div>';
+      }
+      h+='<div style="margin-top:18px"><button class="primary" id="b'+i+'" onclick="conferir('+i+')">🎚️ Sintonizar canal '+d.c+'</button> <span class="hint" id="hb'+i+'"></span></div>';
+      h+='</div>';
+    }
+    sec.innerHTML=h;
+    host.appendChild(sec);
+  }
+  for(var i2=0;i2<DATA.length;i2++){ if(liberado(i2)){ mudou(i2); pintarAval(i2); } }
+  pintarSinal(); pintarRevisar();
+}
+
+function mudou(i){
+  var b=document.getElementById("b"+i); if(!b)return;
+  var ok=true;
+  for(var q=0;q<3;q++){var t=document.getElementById("t"+i+"_"+q);if(!t||t.value.trim().length<3)ok=false;}
+  b.disabled=!ok;
+  document.getElementById("hb"+i).textContent=ok?"":"Preencha as 3 respostas (mínimo 3 letras cada).";
+}
+
+function conferir(i){
+  if(!S.blocos[i])S.blocos[i]={q:[{},{},{}],feito:false,quando:null};
+  var bl=S.blocos[i], travou=false;
+  for(var q=0;q<3;q++){
+    var val=document.getElementById("t"+i+"_"+q).value.trim();
+    var e=bl.q[q]||{};
+    var copia=detectarCopia(val,DATA[i].p.join(" "),DATA[i].q[q].tx);
+    if(copia){
+      if(!e.tentou){ e.tentou=val; e.resp=val; e.aviso=1; travou=true; }
+      else if(e.tentou===val){ e.aviso=1; travou=true; }
+      else { e.transcrita=true; e.aviso=0; e.resp=val; }
+    }else{
+      e.transcrita=false; e.aviso=0; e.resp=val;
+    }
+    bl.q[q]=e;
+  }
+  if(travou){ salvar(); pintarAval(i); return; }
+  bl.feito=true; bl.quando=new Date().toISOString();
+  salvar(); render();
+  var el=document.getElementById("q"+i+"_0"); if(el)el.scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+function pintarAval(i){
+  var bl=S.blocos[i]; if(!bl)return;
+  for(var q=0;q<3;q++){
+    var host=document.getElementById("av"+i+"_"+q); if(!host)continue;
+    var e=bl.q[q]||{}; var h="";
+    if(e.aviso===1){
+      h+='<div class="alerta"><b>Quase lá.</b> Boa parte da sua resposta está igual ao texto do canal. Tente reescrever com as suas palavras — explique como se fosse para um amigo, sem olhar o texto. Pode ficar mais curto e mais simples: o que vale é ser SEU.</div>';
+    }
+    if(bl.feito){
+      if(e.transcrita){
+        h+='<div class="fixo"><b>Resposta muito parecida com o texto.</b> Esta pergunta ficou marcada para revisar. Quando você reescrever com as suas palavras e sintonizar de novo, a marca some sozinha.</div>';
+      }
+      h+='<div class="modelo"><b>Resposta modelo:</b> '+DATA[i].q[q].mod+'</div>';
+      h+='<div class="chk"><b>Confira a sua resposta:</b>';
+      for(var c=0;c<DATA[i].q[q].chk.length;c++){
+        var v=(e.chk&&e.chk[c])||"";
+        h+='<div class="item"><span>'+DATA[i].q[q].chk[c]+'</span>'
+          +'<button class="sim'+(v==="sim"?" on":"")+'" onclick="marcar('+i+','+q+','+c+',\'sim\')">Sim</button>'
+          +'<button class="nao'+(v==="nao"?" on":"")+'" onclick="marcar('+i+','+q+','+c+',\'nao\')">Não</button></div>';
+      }
+      h+='</div>';
+    }
+    host.innerHTML=h;
+  }
+  var qq=document.getElementById("q"+i+"_0");
+  for(var z=0;z<3;z++){
+    var node=document.getElementById("q"+i+"_"+z);
+    if(node){ node.className="q"+((bl.q[z]&&bl.q[z].transcrita)?" vermelha":""); }
+  }
+}
+
+function marcar(i,q,c,v){
+  var e=S.blocos[i].q[q]; if(!e.chk)e.chk=[];
+  e.chk[c]=(e.chk[c]===v)?"":v;
+  salvar(); render();
+}
+
+function pintarSinal(){
+  var n=0; for(var i=0;i<DATA.length;i++){if(S.blocos[i]&&S.blocos[i].feito)n++;}
+  document.getElementById("sig").style.width=Math.round(n/DATA.length*100)+"%";
+  document.getElementById("sigtxt").textContent=n+" de "+DATA.length+" canais sintonizados";
+}
+
+function pintarRevisar(){
+  var ul=document.getElementById("revlist"); var itens=[];
+  for(var i=0;i<DATA.length;i++){
+    var bl=S.blocos[i]; if(!bl||!bl.feito)continue;
+    for(var q=0;q<3;q++){
+      var e=bl.q[q]||{}; var motivos=[];
+      if(e.transcrita)motivos.push("resposta copiada do texto");
+      var cc=e.chk||[];
+      for(var c=0;c<DATA[i].q[q].chk.length;c++){ if(cc[c]==="nao")motivos.push("faltou: "+DATA[i].q[q].chk[c].replace("Minha resposta disse que ","").replace(/\?$/,"")); }
+      if(motivos.length)itens.push("Canal "+DATA[i].c+", pergunta "+(q+1)+" — "+motivos.join("; "));
+    }
+  }
+  ul.innerHTML=itens.length?itens.map(function(t){return "<li>"+t+"</li>";}).join(""):"<li>Nada marcado até agora. Siga sintonizando os canais.</li>";
+}
+
+/* ---------- exportar / importar / zerar ---------- */
+function exportar(){
+  var out={material:"leitura-guiada",kit:"Central de Sintonia — Português 7º ano",quando:S.quando,blocos:[]};
+  for(var i=0;i<DATA.length;i++){
+    var bl=S.blocos[i]; if(!bl)continue;
+    var reg={canal:DATA[i].c,titulo:DATA[i].t,feito:!!bl.feito,quando:bl.quando,status:estBloco(i),perguntas:[]};
+    for(var q=0;q<3;q++){
+      var e=bl.q[q]||{};
+      reg.perguntas.push({n:q+1,pergunta:DATA[i].q[q].tx,resp:e.resp||"",transcrita:!!e.transcrita,tentou:e.tentou||"",chk:e.chk||[]});
+    }
+    out.blocos.push(reg);
+  }
+  var blob=new Blob([JSON.stringify(out,null,2)],{type:"application/json"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="leitura-guiada-central-de-sintonia.json";a.click();
+}
+function importar(inp){
+  var f=inp.files[0]; if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){
+    try{
+      var o=JSON.parse(r.result);
+      if(o&&o.blocos){
+        S={blocos:{},quando:o.quando||null};
+        for(var i=0;i<o.blocos.length;i++){
+          var b=o.blocos[i], idx=-1;
+          for(var k=0;k<DATA.length;k++){if(DATA[k].c===b.canal)idx=k;}
+          if(idx<0)continue;
+          S.blocos[idx]={feito:!!b.feito,quando:b.quando,q:[{},{},{}]};
+          for(var q=0;q<b.perguntas.length&&q<3;q++){
+            var p=b.perguntas[q];
+            S.blocos[idx].q[q]={resp:p.resp,transcrita:!!p.transcrita,tentou:p.tentou,chk:p.chk||[]};
+          }
+        }
+        salvar(); render();
+      }
+    }catch(e){}
+    inp.value="";
+  };
+  r.readAsText(f);
+}
+function pedirZerar(){
+  document.getElementById("mt").textContent="Zerar tudo?";
+  document.getElementById("mb").innerHTML="<p class='hint'>Isso apaga todas as respostas desta Leitura Guiada. Não dá para desfazer.</p>";
+  document.getElementById("mok").onclick=function(){S={blocos:{},quando:null};salvar();render();fecharModal();};
+  document.getElementById("modal").classList.add("on");
+}
+function fecharModal(){document.getElementById("modal").classList.remove("on");}
+
+carregar();render();pintarStatus();
+</script>
+</body>
+</html>

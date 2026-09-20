@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulado — Central de Sintonia</title>
+<style>
+:root{--bg:#0d1119;--panel:#151c2a;--panel2:#1c2537;--line:#2a3550;--txt:#e6edf7;--dim:#9aa9c2;
+--neon:#3ddc97;--amber:#ffb454;--red:#ff5f6d;--blue:#5aa9ff;--roxo:#a78bfa;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:"Segoe UI",system-ui,-apple-system,sans-serif;font-size:17px;line-height:1.6}
+a{color:var(--blue)}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px 80px}
+header.top{background:linear-gradient(135deg,#0a1830,#112445 60%,#0d1119);padding:26px 16px 20px;border-bottom:5px solid var(--red)}
+header.top .inner{max-width:900px;margin:0 auto}
+.kit{font-size:.78rem;letter-spacing:.22em;color:#8fb4e8;text-transform:uppercase;font-weight:700}
+h1{margin:6px 0 4px;font-size:1.75rem;line-height:1.2}
+.sub{color:var(--dim);font-size:.95rem;margin:0}
+nav.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+nav.tabs a{padding:8px 14px;border-radius:999px;font-size:.85rem;text-decoration:none;background:var(--panel2);color:var(--dim);border:1px solid var(--line)}
+nav.tabs a.on{background:var(--red);color:#2a0409;font-weight:700;border-color:var(--red)}
+.prova{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--red);border-radius:12px;padding:14px 16px;margin:18px 0;font-size:.9rem}
+.prova b{display:block;font-size:1rem;margin-bottom:4px}
+.bar{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:18px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.85rem}
+.bar .status{color:var(--dim);flex:1 1 180px}
+button{font-family:inherit;font-size:.85rem;padding:8px 13px;border-radius:9px;cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--txt)}
+button:hover{border-color:var(--red)}
+button.primary{background:var(--red);color:#2a0409;font-weight:700;border-color:var(--red);font-size:1rem;padding:12px 22px}
+button.primary:disabled{background:var(--panel2);color:#5b6a84;border-color:var(--line);cursor:not-allowed;font-weight:400}
+.codebox{background:linear-gradient(135deg,#123a2c,#0f2b22);border:1px solid var(--neon);border-radius:16px;padding:18px;margin:18px 0;display:none}
+.codebox.on{display:block}
+.codebox h2{margin:0 0 6px;font-size:1.1rem;color:var(--neon)}
+.code{font-size:2rem;font-weight:800;letter-spacing:.14em;color:var(--neon);font-family:"Courier New",monospace}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:14px 0}
+.qn{font-size:.72rem;letter-spacing:.16em;color:#8fb4e8;font-weight:700;text-transform:uppercase}
+.badge{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;padding:2px 9px;border-radius:99px;margin-left:8px;font-weight:700}
+.badge.me{background:rgba(90,169,255,.18);color:var(--blue)}
+.badge.soma{background:rgba(167,139,250,.18);color:var(--roxo)}
+.badge.rom{background:rgba(255,180,84,.18);color:var(--amber)}
+.badge.disc{background:rgba(61,220,151,.18);color:var(--neon)}
+.qt{font-weight:600;margin:6px 0 12px}
+.trecho{background:#0b0f16;border-left:3px solid var(--blue);padding:9px 12px;border-radius:0 8px 8px 0;margin:8px 0 12px;font-size:.93rem}
+label.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin:7px 0;cursor:pointer;background:var(--panel2)}
+label.opt:hover{border-color:var(--blue)}
+label.opt input{margin-top:5px}
+label.opt.sel{border-color:var(--blue);background:rgba(90,169,255,.12)}
+label.opt.certa{border-color:var(--neon);background:rgba(61,220,151,.14)}
+label.opt.errada{border-color:#3a4560;background:#222a3a;color:#93a0b8}
+.lt{font-weight:700;min-width:18px}
+.itens{margin:0 0 12px;padding-left:4px;list-style:none}
+.itens li{margin:6px 0;font-size:.94rem}
+.itens b{color:var(--roxo)}
+.exp{margin-top:8px;font-size:.88rem;padding:9px 11px;border-radius:9px}
+.exp.ok{background:rgba(61,220,151,.1);color:#b7f2d8;border:1px solid rgba(61,220,151,.4)}
+.exp.no{background:#1d2433;color:#a9b6cd;border:1px solid var(--line)}
+input[type=number],input[type=text]{background:#0b0f16;color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-family:"Courier New",monospace;font-size:1rem}
+input[type=number]{width:110px}
+input[type=text]{width:170px;text-transform:uppercase}
+textarea{width:100%;min-height:120px;background:#0b0f16;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:.95rem;resize:vertical}
+textarea:focus,input:focus{outline:none;border-color:var(--blue)}
+.hint{color:var(--dim);font-size:.85rem}
+.res{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;margin:18px 0;display:none}
+.res.on{display:block}
+.big{font-size:2.1rem;font-weight:800;color:var(--red)}
+.erro{color:var(--red);font-size:.85rem;margin-top:6px}
+.nextbar{display:flex;justify-content:space-between;gap:10px;margin:30px 0 0;flex-wrap:wrap}
+.nextbar a{padding:12px 20px;border-radius:12px;background:var(--panel2);color:var(--txt);border:1px solid var(--line);text-decoration:none}
+.nextbar a.go{background:var(--red);color:#2a0409;font-weight:700;border-color:var(--red)}
+.modal{position:fixed;inset:0;background:rgba(5,8,13,.8);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+.modal.on{display:flex}
+.modal .box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;max-width:420px;width:100%}
+.modal h3{margin:0 0 10px}
+.modal .row{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+@media(max-width:560px){h1{font-size:1.4rem}body{font-size:16px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="inner">
+  <div class="kit">Central de Sintonia · 7º ano · Língua Portuguesa</div>
+  <h1>📝 Simulado — Transmissão ao Vivo</h1>
+  <p class="sub">28 questões · 27 objetivas + 1 discursiva corrigida em casa</p>
+  <nav class="tabs">
+    <a href="leitura-guiada.html">📖 Leitura Guiada</a>
+    <a href="quiz.html">🎯 Quiz</a>
+    <a href="resumo.html">🗺️ Resumo</a>
+    <a class="on" href="simulado.html">📝 Simulado</a>
+    <a href="index.html">🏠 Início</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <div class="prova">
+    <b>Avaliação de Língua Portuguesa — Gramática</b>
+    Cap. 6 Termos essenciais da oração · Cap. 7 Concordância nominal · Cap. 8 Concordância verbal<br>
+    Tipos de questão: múltipla escolha, somatório, números romanos e discursiva. Responda tudo antes de enviar.
+  </div>
+
+  <div class="bar">
+    <div class="status" id="status">Carregando…</div>
+    <button onclick="exportar()">📥 Exportar</button>
+    <button onclick="document.getElementById('imp').click()">📤 Importar</button>
+    <input type="file" id="imp" accept="application/json" style="display:none" onchange="importar(this)">
+    <button onclick="pedirZerar()">🗑️ Zerar tudo</button>
+  </div>
+
+  <div class="codebox" id="codebox">
+    <h2>🔑 Código de liberação</h2>
+    <div class="code" id="code">SIM-00-XX</div>
+    <p class="hint" style="margin:8px 0 0">Mostre este código para a sua mãe. Ele abre o gabarito comentado aqui embaixo e o Relatório para os pais na página inicial.</p>
+  </div>
+
+  <div class="res" id="res">
+    <div class="big" id="nota">0 / 27</div>
+    <p class="hint" id="notatxt"></p>
+    <div style="margin-top:10px">
+      <input type="text" id="cod" placeholder="SIM-__-__" maxlength="9">
+      <button onclick="abrirGab()">Abrir gabarito comentado</button>
+      <div class="erro" id="coderr" style="display:none">Código errado. Confira as letras e os números.</div>
+    </div>
+  </div>
+
+  <p class="hint" id="aviso">Responda <b>todas as 28 questões</b> para liberar o envio. Depois de enviar, nada pode ser trocado.</p>
+
+  <div id="quest"></div>
+
+  <div style="margin:24px 0;text-align:center">
+    <button class="primary" id="enviar" onclick="pedirEnviar()" disabled>Enviar simulado</button>
+    <div class="hint" id="falta" style="margin-top:8px"></div>
+  </div>
+
+  <div class="nextbar">
+    <a href="resumo.html">← 🗺️ Resumo</a>
+    <a class="go" href="index.html">🏠 Voltar ao início</a>
+  </div>
+</div>
+
+<div class="modal" id="modal"><div class="box">
+  <h3 id="mt">Confirmar</h3><div id="mb"></div>
+  <div class="row"><button onclick="fecharModal()">Cancelar</button><button class="primary" id="mok" style="font-size:.85rem;padding:8px 13px">Confirmar</button></div>
+</div></div>
+
+<script>
+var Q=[
+{k:"me",t:"Assinale a alternativa que apresenta uma ORAÇÃO.",
+ o:[{id:"a",x:"Nunca mais voltei àquela casa!",e:"Correta. Tem o verbo voltei, e é o verbo que transforma a frase em oração.",c:1},
+    {id:"b",x:"Que barulho estranho!",e:"Não há verbo: é frase, mas não é oração.",c:0},
+    {id:"c",x:"Socorro!",e:"Não há verbo: é frase exclamativa, não é oração.",c:0},
+    {id:"d",x:"Ai, meu Deus do céu!",e:"Não há verbo: é frase, não é oração.",c:0}]},
+{k:"me",t:"Em Ali perto, Charlie Brown abriu sua caixa de correio, o predicado é:",
+ o:[{id:"a",x:"abriu sua caixa de correio",e:"Correta. É tudo o que foi declarado sobre o sujeito Charlie Brown.",c:1},
+    {id:"b",x:"Ali perto, Charlie Brown",e:"Charlie Brown é o sujeito e Ali perto é adjunto adverbial; nada disso é predicado.",c:0},
+    {id:"c",x:"Charlie Brown",e:"Charlie Brown é o núcleo do sujeito.",c:0},
+    {id:"d",x:"sua caixa de correio",e:"É só uma parte do predicado; falta o verbo, que é o núcleo dele.",c:0}]},
+{k:"me",t:"Em A senhorita Spink e a senhorita Forcible moravam no apartamento abaixo, o sujeito é:",
+ o:[{id:"a",x:"composto, com dois núcleos",e:"Correta. São dois núcleos, Spink e Forcible, e por isso o verbo vai para o plural.",c:1},
+    {id:"b",x:"simples, com núcleo senhorita",e:"Há dois núcleos na oração, e não um só.",c:0},
+    {id:"c",x:"desinencial",e:"O sujeito está escrito; desinencial é quando ele só aparece na terminação do verbo.",c:0},
+    {id:"d",x:"inexistente",e:"Existe sujeito, e ele é facilmente identificável no começo da oração.",c:0}]},
+{k:"me",t:"Em Pela primeira vez ela não estava vazia, o sujeito é:",
+ o:[{id:"a",x:"simples, com núcleo ela (pronome)",e:"Correta. O núcleo do sujeito pode ser substantivo ou pronome, e aqui é o pronome ela.",c:1},
+    {id:"b",x:"desinencial, recuperado pelo verbo",e:"O sujeito está escrito na oração, então não é desinencial.",c:0},
+    {id:"c",x:"composto, com núcleos vez e ela",e:"Vez pertence à expressão de tempo, não ao sujeito.",c:0},
+    {id:"d",x:"inexistente, pois estar é impessoal",e:"Estar não é impessoal aqui; ele tem sujeito, que é ela.",c:0}]},
+{k:"me",t:"A análise que olha a palavra isoladamente e diz se ela é substantivo, adjetivo, verbo ou advérbio chama-se:",
+ o:[{id:"a",x:"análise morfológica",e:"Correta. Ela classifica a palavra sozinha, pela classe gramatical.",c:1},
+    {id:"b",x:"análise morfossintática",e:"Essa olha a palavra dentro da oração e diz a função dela.",c:0},
+    {id:"c",x:"análise semântica",e:"Semântica trata do significado, e não da classe da palavra.",c:0},
+    {id:"d",x:"análise fonética",e:"Fonética trata dos sons da fala.",c:0}]},
+{k:"me",t:"Em O velho estava treinando um circo de ratos, a locução verbal é:",
+ o:[{id:"a",x:"estava treinando",e:"Correta. Dois verbos formando uma ação só: essa é a locução verbal, núcleo do predicado.",c:1},
+    {id:"b",x:"estava",e:"Sozinho ele é só o auxiliar; a locução precisa dos dois verbos juntos.",c:0},
+    {id:"c",x:"treinando um circo",e:"Um circo é complemento, não faz parte da locução verbal.",c:0},
+    {id:"d",x:"um circo de ratos",e:"Não há verbo nenhum nessa expressão.",c:0}]},
+{k:"me",t:"Em Abri a boca para gritar, mas não consegui emitir nenhum som, o sujeito do verbo abri é:",
+ o:[{id:"a",x:"desinencial (eu), 1ª pessoa do singular",e:"Correta. A terminação de abri entrega a 1ª pessoa do singular, mesmo sem o eu escrito.",c:1},
+    {id:"b",x:"inexistente, pois a oração não tem sujeito",e:"Existe sujeito: quem abriu a boca foi o narrador.",c:0},
+    {id:"c",x:"simples, com núcleo boca",e:"A boca é o que foi aberto, ou seja, complemento do verbo.",c:0},
+    {id:"d",x:"simples, com núcleo som",e:"Som pertence à segunda oração e é complemento de emitir.",c:0}]},
+{k:"me",t:"Em Havia muitas pedras no jardim, a palavra muitas é:",
+ o:[{id:"a",x:"pronome indefinido, determinante de pedras",e:"Correta. Ela acompanha o substantivo pedras e concorda com ele no feminino plural.",c:1},
+    {id:"b",x:"numeral, determinante de pedras",e:"Numerais indicam quantidade exata; muitas é indefinida.",c:0},
+    {id:"c",x:"artigo indefinido",e:"Artigos indefinidos são um, uma, uns, umas.",c:0},
+    {id:"d",x:"advérbio de intensidade",e:"Se fosse advérbio não variaria; aqui ela concorda com o substantivo.",c:0}]},
+{k:"me",t:"Assinale a alternativa em que a concordância nominal está totalmente correta:",
+ o:[{id:"a",x:"Aquelas meninas trouxeram dois cadernos novos.",e:"Correta. Cada determinante concorda em gênero e número com o seu substantivo.",c:1},
+    {id:"b",x:"Aquelas menina trouxe dois caderno novo.",e:"Aquelas está no plural e menina no singular; o mesmo erro se repete em caderno.",c:0},
+    {id:"c",x:"Aquela meninas trouxeram duas cadernos novas.",e:"Aquela não combina com meninas, e duas novas não combinam com cadernos.",c:0},
+    {id:"d",x:"Aqueles meninas trouxeram dois cadernos nova.",e:"Aqueles está no masculino e meninas no feminino; nova também não concorda com cadernos.",c:0}]},
+{k:"me",t:"Complete corretamente: Ele comprou ______ blusas e casacos para o inverno.",
+ o:[{id:"a",x:"novas",e:"Correta. O adjetivo anteposto concorda com o substantivo mais próximo, que é blusas.",c:1},
+    {id:"b",x:"novos",e:"O masculino plural só valeria se o adjetivo viesse depois dos dois substantivos.",c:0},
+    {id:"c",x:"nova",e:"Blusas está no plural, então o adjetivo também precisa ficar no plural.",c:0},
+    {id:"d",x:"novo",e:"Não concorda nem em gênero nem em número com blusas.",c:0}]},
+{k:"me",t:"Assinale a alternativa INCORRETA de acordo com a concordância nominal:",
+ o:[{id:"a",x:"A mãe e o professor aflitas conversavam na sala.",e:"Correta (é a incorreta). Com substantivos de gêneros diferentes, o plural precisa ser masculino: aflitos.",c:1},
+    {id:"b",x:"A mãe e o professor aflito conversavam na sala.",e:"Está certa: o adjetivo posposto pode concordar só com o mais próximo, que é professor.",c:0},
+    {id:"c",x:"A mãe e o professor aflitos conversavam na sala.",e:"Está certa: gêneros diferentes no plural pedem o masculino.",c:0},
+    {id:"d",x:"A mãe e a professora aflitas conversavam na sala.",e:"Está certa: os dois substantivos são femininos, então o plural feminino é permitido.",c:0}]},
+{k:"me",t:"Sobre um substantivo acompanhado de vários adjetivos, assinale a alternativa correta:",
+ o:[{id:"a",x:"O curso atende o aluno brasileiro e o argentino.",e:"Correta. Com o substantivo no singular, o artigo se repete antes de cada adjetivo.",c:1},
+    {id:"b",x:"O curso atende o aluno brasileiro e argentino.",e:"Faltou repetir o artigo antes do segundo adjetivo.",c:0},
+    {id:"c",x:"O curso atende os aluno brasileiro e argentino.",e:"O artigo no plural exige o substantivo no plural: alunos.",c:0},
+    {id:"d",x:"O curso atende o alunos brasileiros e argentino.",e:"O artigo no singular não combina com o substantivo no plural.",c:0}]},
+{k:"me",t:"Assinale a alternativa correta sobre numerais ordinais antepostos a um substantivo:",
+ o:[{id:"a",x:"Convocamos as turmas do sexto e sétimo anos.",e:"Correta. Com numerais ordinais antepostos, o substantivo pode ficar no plural (ou no singular: ano).",c:1},
+    {id:"b",x:"Convocamos as turma do sexto e sétimo ano.",e:"O erro está em as turma: o artigo plural exige o substantivo no plural.",c:0},
+    {id:"c",x:"Convocamos as turmas do sextos e sétimos ano.",e:"Os numerais ordinais antepostos não vão para o plural desse jeito.",c:0},
+    {id:"d",x:"Convocamos a turmas do sexto e sétimo anos.",e:"O artigo a está no singular e turmas no plural.",c:0}]},
+{k:"me",t:"Complete: As ideias dos alunos são muito ______.",
+ o:[{id:"a",x:"importantes",e:"Correta. Importante é adjetivo comum de dois gêneros: não muda de gênero, só de número.",c:1},
+    {id:"b",x:"importante",e:"Ideias está no plural, e o adjetivo uniforme varia em número.",c:0},
+    {id:"c",x:"importantas",e:"Essa forma não existe: o adjetivo não tem feminino próprio.",c:0},
+    {id:"d",x:"importantos",e:"Essa forma também não existe na língua portuguesa.",c:0}]},
+{k:"me",t:"Assinale a alternativa que respeita a regra do substantivo adjetivado:",
+ o:[{id:"a",x:"Ela usava duas blusas cinza no ensaio.",e:"Correta. Cinza é substantivo funcionando como adjetivo e fica invariável.",c:1},
+    {id:"b",x:"Ela usava duas blusas cinzas no ensaio.",e:"Substantivo adjetivado não recebe S.",c:0},
+    {id:"c",x:"Ele comprou dois ternos pastéis.",e:"O certo é ternos pastel, sem variação.",c:0},
+    {id:"d",x:"A menina tinha olhos esmeraldas.",e:"O certo é olhos esmeralda.",c:0}]},
+{k:"me",t:"Complete: Elas ______ escreveram o roteiro da entrevista.",
+ o:[{id:"a",x:"mesmas",e:"Correta. Com sentido de próprias, mesmo é adjetivo e concorda com elas.",c:1},
+    {id:"b",x:"mesmo",e:"A forma invariável só vale quando mesmo significa realmente.",c:0},
+    {id:"c",x:"mesmos",e:"O sujeito elas está no feminino, então o adjetivo também.",c:0},
+    {id:"d",x:"mesma",e:"Elas está no plural, então o adjetivo também vai para o plural.",c:0}]},
+{k:"me",t:"Assinale a alternativa correta quanto ao uso de anexo:",
+ o:[{id:"a",x:"Seguem os documentos em anexo.",e:"Correta. A locução em anexo é adverbial e nunca varia.",c:1},
+    {id:"b",x:"Seguem os documentos em anexos.",e:"A locução em anexo é invariável; não existe em anexos.",c:0},
+    {id:"c",x:"As fotos seguem anexo ao e-mail.",e:"Como adjetivo, anexo concorda com fotos: anexas.",c:0},
+    {id:"d",x:"Os arquivos estão anexo à mensagem.",e:"Como adjetivo, concorda com arquivos: anexos.",c:0}]},
+{k:"me",t:"Assinale a alternativa correta:",
+ o:[{id:"a",x:"É meio-dia e meia, e ela está meio cansada.",e:"Correta. Meia concorda com hora, que está subentendida, e meio com sentido de um pouco é advérbio invariável.",c:1},
+    {id:"b",x:"É meio-dia e meio, e ela está meia cansada.",e:"Os dois usos estão trocados: o numeral deveria ser meia e o advérbio, meio.",c:0},
+    {id:"c",x:"São meio-dia e meia, e ela está meia cansada.",e:"Com meio-dia o verbo ser fica no singular, e meia cansada está errado.",c:0},
+    {id:"d",x:"É meia-dia e meio, e ela está meio cansada.",e:"A forma correta é meio-dia, e o complemento é meia.",c:0}]},
+{k:"me",t:"Complete: As meninas ficaram ______ na sala e depois conversaram ______.",
+ o:[{id:"a",x:"sós / a sós",e:"Correta. Com sentido de sozinhas, só é adjetivo e varia em número; a locução a sós é invariável.",c:1},
+    {id:"b",x:"só / a sós",e:"Com sentido de sozinhas, a palavra precisa ir para o plural: sós.",c:0},
+    {id:"c",x:"sós / a só",e:"A locução correta é a sós, que nunca muda.",c:0},
+    {id:"d",x:"só / a só",e:"Os dois usos estão errados: faltou o plural e a locução foi alterada.",c:0}]},
+{k:"me",t:"Complete: Nós não ______ naquela casa mal-assombrada.",
+ o:[{id:"a",x:"dormiremos",e:"Correta. O verbo concorda com nós, 1ª pessoa do plural.",c:1},
+    {id:"b",x:"dormirei",e:"Essa forma é da 1ª pessoa do singular, que combina com eu.",c:0},
+    {id:"c",x:"dormirá",e:"Essa forma é da 3ª pessoa do singular.",c:0},
+    {id:"d",x:"dormirão",e:"Essa forma é da 3ª pessoa do plural, que combina com eles.",c:0}]},
+{k:"me",t:"Complete: Vossa Majestade ______ uma coletiva de imprensa ontem.",
+ o:[{id:"a",x:"fez",e:"Correta. Pronomes de tratamento levam o verbo à 3ª pessoa, aqui no singular.",c:1},
+    {id:"b",x:"fizeram",e:"Vossa Majestade está no singular, então o verbo também fica no singular.",c:0},
+    {id:"c",x:"fizestes",e:"Essa é a 2ª pessoa do plural, que não combina com pronome de tratamento.",c:0},
+    {id:"d",x:"fizeste",e:"Essa é a 2ª pessoa do singular, que também não combina.",c:0}]},
+{k:"me",t:"Complete: ______ duas horas da madrugada quando o barulho começou.",
+ o:[{id:"a",x:"Eram",e:"Correta. Na indicação de horas, o verbo ser segue o numeral, e duas pede o plural.",c:1},
+    {id:"b",x:"Era",e:"O singular só valeria com uma hora ou com meio-dia.",c:0},
+    {id:"c",x:"Havia",e:"Haver não é usado para indicar que horas eram.",c:0},
+    {id:"d",x:"Fazia",e:"Fazer indica tempo decorrido, e não a hora do relógio.",c:0}]},
+
+{k:"soma",t:"Sobre os termos essenciais da oração, SOME os números dos itens CORRETOS:",
+ itens:["<b>01)</b> O núcleo do sujeito é sempre um substantivo ou um pronome.",
+        "<b>02)</b> O predicado nunca aparece sem verbo ou locução verbal.",
+        "<b>04)</b> Toda frase é uma oração.",
+        "<b>08)</b> O sujeito composto apresenta mais de um núcleo.",
+        "<b>16)</b> Em As crianças brincavam, o núcleo do sujeito é as crianças."],
+ soma:11,
+ e:"Soma correta: 01 + 02 + 08 = <b>11</b>. O item 04 está errado porque nem toda frase tem verbo (Que medo! é frase e não é oração). O item 16 está errado porque o núcleo é apenas crianças; o artigo as é determinante."},
+{k:"soma",t:"Sobre verbos impessoais e concordância verbal, SOME os números dos itens CORRETOS:",
+ itens:["<b>01)</b> Haver com sentido de existir fica sempre na 3ª pessoa do singular.",
+        "<b>02)</b> Fazer indicando tempo decorrido pode ir para o plural.",
+        "<b>04)</b> Verbos que indicam fenômenos da natureza ficam na 3ª pessoa do singular.",
+        "<b>08)</b> Em sentido figurado, verbos de fenômeno da natureza passam a concordar com o sujeito.",
+        "<b>16)</b> Como verbo auxiliar, haver não concorda com o sujeito."],
+ soma:13,
+ e:"Soma correta: 01 + 04 + 08 = <b>13</b>. O item 02 está errado porque faz dois anos nunca vira fazem dois anos. O item 16 está errado porque, como auxiliar, haver concorda normalmente: eles haviam vivido."},
+
+{k:"rom",t:"Analise as afirmativas sobre concordância nominal:",
+ itens:["<b>I.</b> O adjetivo anteposto a mais de um substantivo concorda com o mais próximo.",
+        "<b>II.</b> Com substantivos de gêneros diferentes, o adjetivo posposto no plural fica no feminino.",
+        "<b>III.</b> O substantivo adjetivado é invariável em gênero e número.",
+        "<b>IV.</b> A expressão de agradecimento obrigado concorda com a pessoa que fala."],
+ o:[{id:"a",x:"Apenas I, III e IV estão corretas.",e:"Correta. A afirmativa II é a única errada: com gêneros diferentes, o plural vai para o masculino (o pai e a professora aflitos).",c:1},
+    {id:"b",x:"Apenas I e II estão corretas.",e:"A II está errada, e III e IV estão corretas.",c:0},
+    {id:"c",x:"Apenas II e IV estão corretas.",e:"A II está errada e a I e a III também estão corretas.",c:0},
+    {id:"d",x:"Todas as afirmativas estão corretas.",e:"A II está errada: o plural, nesse caso, é masculino.",c:0}]},
+{k:"rom",t:"Analise as afirmativas sobre concordância verbal:",
+ itens:["<b>I.</b> Com sujeito partitivo (a maioria dos alunos), o verbo pode ficar no singular ou no plural.",
+        "<b>II.</b> Com cerca de e mais de, o verbo concorda com o numeral.",
+        "<b>III.</b> Nomes usados somente no plural levam o verbo ao plural mesmo sem artigo.",
+        "<b>IV.</b> Pronomes de tratamento levam o verbo à terceira pessoa."],
+ o:[{id:"a",x:"Apenas I, II e IV estão corretas.",e:"Correta. A III está errada: sem artigo o verbo fica no singular (Minas Gerais está no Sudeste).",c:1},
+    {id:"b",x:"Apenas I e III estão corretas.",e:"A III está errada e a II e a IV estão corretas.",c:0},
+    {id:"c",x:"Apenas II e III estão corretas.",e:"A III está errada e a I e a IV estão corretas.",c:0},
+    {id:"d",x:"Todas as afirmativas estão corretas.",e:"A III está errada: sem artigo, o verbo vai para o singular.",c:0}]},
+{k:"rom",t:"Analise as afirmativas sobre os verbos haver e fazer:",
+ itens:["<b>I.</b> Em Havia várias situações amedrontadoras, o verbo está corretamente no singular.",
+        "<b>II.</b> Em Fazem dois anos que estudo aqui, o verbo está corretamente no plural.",
+        "<b>III.</b> Em Eles haviam vivido situações difíceis, o verbo concorda com o sujeito porque é auxiliar."],
+ o:[{id:"a",x:"Apenas I e III estão corretas.",e:"Correta. A II está errada: fazer indicando tempo decorrido é impessoal e fica no singular (faz dois anos).",c:1},
+    {id:"b",x:"Apenas I está correta.",e:"A III também está correta: como auxiliar, haver concorda com o sujeito.",c:0},
+    {id:"c",x:"Apenas II e III estão corretas.",e:"A II está errada; o correto é faz dois anos.",c:0},
+    {id:"d",x:"Todas as afirmativas estão corretas.",e:"A II está errada: fazer é impessoal nesse sentido.",c:0}]},
+
+{k:"disc",t:"Leia a frase e responda às duas letras. Escreva as respostas completas, com explicação.",
+ trecho:"A maioria dos alunos do sétimo ano, naquela semana, entregou o trabalho de Língua Portuguesa.",
+ sub:["<b>A)</b> Identifique o núcleo do sujeito e explique com quem o verbo entregou concordou.",
+      "<b>B)</b> Reescreva a frase com a outra concordância possível e explique por que ela também está correta."],
+ mod:"<b>A)</b> O núcleo do sujeito é <b>maioria</b>. O verbo entregou concordou com esse núcleo, ficando na terceira pessoa do singular. A expressão naquela semana é uma locução adverbial de tempo que caiu entre o sujeito e o verbo e não interfere na concordância.<br><br><b>B)</b> A maioria dos alunos do sétimo ano, naquela semana, <b>entregaram</b> o trabalho de Língua Portuguesa. Essa forma também está correta porque o sujeito é <b>partitivo</b>: com expressões como a maioria de, o verbo pode concordar com o núcleo (maioria, singular) ou com o substantivo no plural que vem depois (alunos).<br><br><i>Para corrigir em casa: dê o ponto inteiro se a criança apontou maioria como núcleo, disse que o verbo ficou na 3ª pessoa do singular, reescreveu com entregaram e citou que o sujeito é partitivo.</i>"}
+];
+
+function rng(seed){var s=seed;return function(){s=(s*1664525+1013904223)%4294967296;return s/4294967296;};}
+var ORD=[];
+(function(){
+  for(var i=0;i<Q.length;i++){
+    if(!Q[i].o){ORD.push(null);continue;}
+    var idx=[];for(var k=0;k<Q[i].o.length;k++)idx.push(k);
+    var r=rng(31771+i*911);
+    for(var j=idx.length-1;j>0;j--){var t=Math.floor(r()*(j+1));var tmp=idx[j];idx[j]=idx[t];idx[t]=tmp;}
+    ORD.push(idx);
+  }
+})();
+function idCorreto(i){if(!Q[i].o)return null;for(var k=0;k<Q[i].o.length;k++){if(Q[i].o[k].c===1)return Q[i].o[k].id;}return null;}
+function objetivas(){var n=0;for(var i=0;i<Q.length;i++){if(Q[i].k!=="disc")n++;}return n;}
+var TOTOBJ=objetivas();
+
+var MEM={};
+function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){if(v===undefined)return MEM[k]===undefined?null:MEM[k];MEM[k]=v;}return null;}
+var KEY="cs7_simulado_v1";
+var S={resp:{},enviado:false,codigo:null,acertos:null,quando:null,gab:false};
+function carregar(){var raw=store(KEY);if(raw){try{var o=JSON.parse(raw);if(o&&o.resp)S=o;}catch(e){}}}
+function salvar(){S.quando=new Date().toISOString();try{store(KEY,JSON.stringify(S));}catch(e){}pintarStatus();}
+function pintarStatus(){
+  var d=S.quando?new Date(S.quando):null;
+  document.getElementById("status").textContent=d?("Salvo automaticamente em "+d.toLocaleDateString("pt-BR")+" às "+d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})):"Nada salvo ainda — pode começar.";
+}
+function letras(){var A="ABCDEFGHJKLMNPQRSTUVWXYZ";return A[Math.floor(Math.random()*A.length)]+A[Math.floor(Math.random()*A.length)];}
+function nomeTipo(k){return k==="me"?"múltipla escolha":k==="soma"?"somatório":k==="rom"?"números romanos":"discursiva";}
+
+function render(){
+  var host=document.getElementById("quest");host.innerHTML="";
+  for(var i=0;i<Q.length;i++){
+    var d=Q[i];
+    var div=document.createElement("div");div.className="q";
+    var h='<div class="qn">Questão '+(i+1)+' de '+Q.length+'<span class="badge '+d.k+'">'+nomeTipo(d.k)+'</span></div><div class="qt">'+d.t+'</div>';
+    if(d.trecho)h+='<div class="trecho">'+d.trecho+'</div>';
+    if(d.itens){h+='<ul class="itens">';for(var it=0;it<d.itens.length;it++)h+="<li>"+d.itens[it]+"</li>";h+="</ul>";}
+    if(d.k==="me"||d.k==="rom"){
+      for(var p=0;p<ORD[i].length;p++){
+        var op=d.o[ORD[i][p]];var L="abcd"[p];var sel=(S.resp[i]===op.id);
+        var cls="opt"+(sel&&!S.enviado?" sel":"");
+        if(S.enviado&&S.gab){cls="opt"+(op.c===1?" certa":" errada");}
+        else if(S.enviado&&sel){cls="opt sel";}
+        h+='<label class="'+cls+'"><input type="radio" name="q'+i+'" value="'+op.id+'"'+(sel?" checked":"")+(S.enviado?" disabled":"")+' onchange="marcar('+i+',\''+op.id+'\')"><span class="lt">'+L+')</span><span>'+op.x+(S.enviado&&S.gab&&sel?' <b>← sua resposta</b>':'')+'</span></label>';
+        if(S.enviado&&S.gab)h+='<div class="exp '+(op.c===1?"ok":"no")+'">'+op.e+'</div>';
+      }
+    }else if(d.k==="soma"){
+      h+='<label class="hint">Escreva a soma dos itens corretos: <input type="number" min="0" max="31" value="'+(S.resp[i]!==undefined?S.resp[i]:"")+'"'+(S.enviado?" disabled":"")+' oninput="marcarNum('+i+',this.value)"></label>';
+      if(S.enviado&&S.gab){
+        var certo=(parseInt(S.resp[i],10)===d.soma);
+        h+='<div class="exp '+(certo?"ok":"no")+'">'+(certo?"✅ Você acertou. ":"❌ Você respondeu "+(S.resp[i]===""||S.resp[i]===undefined?"nada":S.resp[i])+". ")+d.e+'</div>';
+      }
+    }else if(d.k==="disc"){
+      for(var s2=0;s2<d.sub.length;s2++)h+='<p style="margin:4px 0">'+d.sub[s2]+'</p>';
+      h+='<textarea'+(S.enviado?" disabled":"")+' oninput="marcarTx('+i+',this.value)" placeholder="Escreva aqui as letras A e B…">'+(S.resp[i]||"")+'</textarea>';
+      if(S.enviado&&S.gab)h+='<div class="exp ok"><b>Resposta modelo:</b><br>'+d.mod+'</div>';
+      else h+='<p class="hint">Esta questão não entra na nota automática: ela é corrigida em casa com a resposta modelo do gabarito.</p>';
+    }
+    div.innerHTML=h;host.appendChild(div);
+  }
+  atualizar();
+}
+function marcar(i,id){if(S.enviado)return;S.resp[i]=id;salvar();atualizar();
+  var labs=document.getElementsByName("q"+i);
+  for(var k=0;k<labs.length;k++){labs[k].parentNode.className="opt"+(labs[k].value===id?" sel":"");}
+}
+function marcarNum(i,v){if(S.enviado)return;S.resp[i]=v;salvar();atualizar();}
+function marcarTx(i,v){if(S.enviado)return;S.resp[i]=v;salvar();atualizar();}
+function respondida(i){
+  var v=S.resp[i];
+  if(Q[i].k==="soma")return v!==undefined&&v!==""&&!isNaN(parseInt(v,10));
+  if(Q[i].k==="disc")return typeof v==="string"&&v.trim().length>=10;
+  return !!v;
+}
+function atualizar(){
+  var n=0;for(var i=0;i<Q.length;i++){if(respondida(i))n++;}
+  document.getElementById("enviar").disabled=(n<Q.length)||S.enviado;
+  document.getElementById("falta").textContent=S.enviado?"Simulado enviado e travado.":(n<Q.length?("Faltam "+(Q.length-n)+" de "+Q.length+" questões (a discursiva precisa de pelo menos 10 letras)."):"Tudo respondido — pode enviar.");
+  if(S.enviado){
+    document.getElementById("aviso").style.display="none";
+    document.getElementById("codebox").classList.add("on");
+    document.getElementById("code").textContent=S.codigo;
+    document.getElementById("res").classList.add("on");
+    document.getElementById("nota").textContent=S.acertos+" / "+TOTOBJ;
+    document.getElementById("notatxt").textContent="Você acertou "+Math.round(S.acertos/TOTOBJ*100)+"% das questões objetivas. A discursiva é corrigida em casa, com a resposta modelo do gabarito.";
+    if(S.gab)document.getElementById("cod").style.display="none";
+  }
+}
+function pedirEnviar(){
+  document.getElementById("mt").textContent="Enviar o simulado?";
+  document.getElementById("mb").innerHTML="<p class='hint'>Depois de enviar não dá para trocar nada. O código de liberação aparece no topo.</p>";
+  document.getElementById("mok").onclick=function(){enviar();fecharModal();};
+  document.getElementById("modal").classList.add("on");
+}
+function enviar(){
+  var ac=0;
+  for(var i=0;i<Q.length;i++){
+    if(Q[i].k==="disc")continue;
+    if(Q[i].k==="soma"){if(parseInt(S.resp[i],10)===Q[i].soma)ac++;}
+    else{if(S.resp[i]===idCorreto(i))ac++;}
+  }
+  S.acertos=ac;S.enviado=true;
+  S.codigo="SIM-"+(ac<10?"0"+ac:""+ac)+"-"+letras();
+  salvar();render();window.scrollTo({top:0,behavior:"smooth"});
+}
+function abrirGab(){
+  var v=document.getElementById("cod").value.trim().toUpperCase();
+  if(v===S.codigo){S.gab=true;salvar();render();document.getElementById("coderr").style.display="none";}
+  else{document.getElementById("coderr").style.display="block";}
+}
+function exportar(){
+  var out={material:"simulado",kit:"Central de Sintonia — Português 7º ano",quando:S.quando,enviado:S.enviado,
+    acertos:S.acertos,totalObjetivas:TOTOBJ,codigo:S.codigo,questoes:[]};
+  for(var i=0;i<Q.length;i++){
+    var reg={n:i+1,tipo:Q[i].k,pergunta:Q[i].t,resposta:S.resp[i]===undefined?"":S.resp[i]};
+    if(Q[i].k==="soma"){reg.somaCorreta=Q[i].soma;reg.acertou=parseInt(S.resp[i],10)===Q[i].soma;}
+    else if(Q[i].k!=="disc"){reg.correta=idCorreto(i);reg.acertou=S.resp[i]===idCorreto(i);}
+    else{reg.corrigidaEmCasa=true;}
+    out.questoes.push(reg);
+  }
+  var blob=new Blob([JSON.stringify(out,null,2)],{type:"application/json"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="simulado-central-de-sintonia.json";a.click();
+}
+function importar(inp){
+  var f=inp.files[0];if(!f)return;var r=new FileReader();
+  r.onload=function(){try{var o=JSON.parse(r.result);
+    if(o&&o.questoes){S={resp:{},enviado:!!o.enviado,codigo:o.codigo||null,acertos:(o.acertos===undefined?null:o.acertos),quando:o.quando||null,gab:false};
+      for(var i=0;i<o.questoes.length;i++){if(o.questoes[i].resposta!=="")S.resp[i]=o.questoes[i].resposta;}
+      salvar();render();}
+  }catch(e){}inp.value="";};
+  r.readAsText(f);
+}
+function pedirZerar(){
+  document.getElementById("mt").textContent="Zerar tudo?";
+  document.getElementById("mb").innerHTML="<p class='hint'>Isso apaga as respostas, a nota e o código deste Simulado.</p>";
+  document.getElementById("mok").onclick=function(){S={resp:{},enviado:false,codigo:null,acertos:null,quando:null,gab:false};salvar();render();fecharModal();};
+  document.getElementById("modal").classList.add("on");
+}
+function fecharModal(){document.getElementById("modal").classList.remove("on");}
+carregar();render();pintarStatus();
+</script>
+</body>
+</html>
